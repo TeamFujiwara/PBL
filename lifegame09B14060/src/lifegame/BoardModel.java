@@ -53,9 +53,33 @@ public class BoardModel {
 		fireUpdate();
 	}
 
-	private int countSuvivorsAround(int c, int r){
+	private int countSuvivorsAround(int r, int c){
 		//具体的な実装をここに
+		int SuvivorNum = 0;
+		if(c != 0){
+			for(int i=0;i < 3 && (r + i) <= this.getRows();i++){
+				if(isAlive(c-1, r + i))
+					++SuvivorNum;
+			}
+		}
 
+		if(c != this.getCols()){
+			for(int i=0;i < 3 && (r + i) <= this.getRows();i++){
+				if(isAlive(c+1, r + i))
+					++SuvivorNum;
+			}
+		}
+
+		if(r != 0)
+			if(isAlive(c, r-1))
+				++SuvivorNum;
+
+		if(r != this.getRows())
+			if(isAlive(c, r+1))
+				++SuvivorNum;
+
+
+		return SuvivorNum;
 	}
 
 	public void next(){
@@ -66,6 +90,7 @@ public class BoardModel {
 				numOfSurvivorsAround[i][j] = this.countSuvivorsAround(i, j);
 			}
 		}
+
 	}
 
 
