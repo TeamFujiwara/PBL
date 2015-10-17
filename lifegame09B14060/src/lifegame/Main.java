@@ -17,6 +17,7 @@ public class Main {
 		tested.changeCellsState(4, 3);
 
 		tested.next();
+		tested.printForDebug();
 		tested.undo();
 		tested.printForDebug();
 	}

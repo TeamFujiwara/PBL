@@ -5,23 +5,23 @@
  */
 package lifegame;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.NoSuchElementException;
-import java.util.ArrayDeque;
 
 public class BoardModel {
 	private boolean[][] cells;
-	private int cols;
-	private int rows;
+	private final int cols;
+	private final int rows;
 	private ArrayList<BoardListener> listeners;
 	// (APIより) ArrayDequeは16個まで要素を格納できる
-	private ArrayDeque<BoardModel> BoardHistories = new ArrayDeque<BoardModel>();
+	private ArrayDeque<boolean[][]> BoardHistories = new ArrayDeque<boolean[][]>();
 
 	/**
 	 * (テスト用)
 	 * @return
 	 */
-	public ArrayDeque<BoardModel> getBoardHistories() {
+	public ArrayDeque<boolean[][]> getBoardHistories() {
 		return BoardHistories;
 	}
 
@@ -52,6 +52,21 @@ public class BoardModel {
 		for(BoardListener listener: this.listeners){
 			listener.updated(this);
 		}
+	}
+
+	/**
+	 * 現在の盤面を複製する。(別のbooelan[][]インスタンスを生成)
+	 * テストでも用いるためpublic
+	 * @return 複製した盤面
+	 */
+	public boolean[][] duplicateBoard(){
+		boolean[][] b = new boolean[this.getRows()][this.getCols()];
+		for (int i = 0; i < this.getRows(); i++) {
+			for (int j = 0; j < this.getCols(); j++) {
+				b[i][j] = (this.getCells()[i][j]) ? true : false;
+			}
+		}
+		return b;
 	}
 
 	/**
@@ -110,16 +125,17 @@ public class BoardModel {
 
 	/**
 	 * 新しいボードに変更する
+	 * テストでも用いるためpublic
 	 * @param b 変更後のボード
 	 */
-	private void changeToNewBoard(boolean[][] b){
+	public void changeToNewBoard(boolean[][] b){
 		for(int i=0; i < this.getRows(); i++){
 			for(int j=0; j < this.getCols(); j++){
-				this.cells[i][j] = b[i][j];
+				if(getCells()[i][j] != b[i][j])
+					this.changeCellsState(i, j);
 			}
 		}
 
-		fireUpdate();
 	}
 
 	/**
@@ -207,33 +223,30 @@ public class BoardModel {
 		 * スタックの容量がいっぱいの場合は一番古い履歴を消す
 		 * yet tested
 		 */
+
 		try{
-			BoardHistories.push(this);
+			BoardHistories.push(this.duplicateBoard());
 		}catch(IllegalAccessError e){
 			BoardHistories.removeLast();
-			BoardHistories.push(this);
+			BoardHistories.push(this.duplicateBoard());
 		}
 
-		// 盤面を新しい状態にする
-		changeToNewBoard(nextBoard);
-		// 盤面の更新を通知する
-		fireUpdate();
 
+		// 盤面を新しい状態にする
+		this.changeToNewBoard(nextBoard);
 	}
 
 	/**
 	 * 盤面を1つ前の状態に戻す。
 	 * @throws NoSuchElementException 履歴スタックが空の場合
-	 * yet tested
 	 */
 	public void undo() throws NoSuchElementException{
 		try{
-			changeToNewBoard(BoardHistories.pop().getCells());
+			changeToNewBoard(BoardHistories.pop());
 		}catch(NoSuchElementException e){
 			throw e;
 		}
 
-		fireUpdate();
 	}
 
 
