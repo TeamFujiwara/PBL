@@ -8,12 +8,17 @@ package lifegame;
 public class Main {
 
 	public static void main(String[] args) {
-		// TODO 自動生成されたメソッド・スタブ
+		BoardModel tested = new BoardModel(10, 10);
 
-		// 正常にコンストラクタ、changeCellsState、printForDebugができてることを確認
-		BoardModel m1 = new BoardModel(4, 4);
-		m1.changeCellsState(3, 2);
-		m1.printForDebug();
+		tested.changeCellsState(2, 2);
+		tested.changeCellsState(3, 3);
+		tested.changeCellsState(4, 1);
+		tested.changeCellsState(4, 2);
+		tested.changeCellsState(4, 3);
+
+		tested.next();
+		tested.undo();
+		tested.printForDebug();
 	}
 
 }
