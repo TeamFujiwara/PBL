@@ -1,3 +1,8 @@
+/**
+ * メイン処理を担当するクラス
+ * @author Wataru Hirota
+ * @version 1.0
+ */
 package lifegame;
 
 public class Main {
