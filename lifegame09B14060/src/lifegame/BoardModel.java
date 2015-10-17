@@ -6,12 +6,15 @@
 package lifegame;
 
 import java.util.ArrayList;
+import java.util.ArrayDeque;
 
 public class BoardModel {
 	private boolean[][] cells;
-	int cols;
-	int rows;
+	private int cols;
+	private int rows;
 	private ArrayList<BoardListener> listeners;
+	// (APIより) ArrayDequeは16個まで要素を格納できる
+	private ArrayDeque<BoardModel> BoardHistories = new ArrayDeque<BoardModel>();
 
 	/**
 	 * @param rows 行数
@@ -62,8 +65,8 @@ public class BoardModel {
 	 * (テスト用)現在のボードの状態をコンソールに出力する
 	 */
 	public void printForDebug(){
-		for (int i = 0; i < this.cols; i++) {
-			for (int j = 0; j < this.rows; j++) {
+		for (int i = 0; i < this.getRows(); i++) {
+			for (int j = 0; j < this.getCols(); j++) {
 				System.out.printf("%c", (isAlive(i, j)) ? '※' : '-');
 			}
 			System.out.println();
@@ -76,6 +79,18 @@ public class BoardModel {
 	public void changeCellsState(int c, int r){
 		this.cells[c][r] = !this.cells[c][r];
 		fireUpdate();
+	}
+
+	/**
+	 * 新しいボードに変更する
+	 * @param b 変更後のボード
+	 */
+	private void changeToNewBoard(boolean[][] b){
+		for(int i=0; i < this.getRows(); i++){
+			for(int j=0; j < this.getCols(); i++){
+				this.cells[i][j] = b[i][j];
+			}
+		}
 	}
 
 	/**
@@ -121,15 +136,41 @@ public class BoardModel {
 	 * ボードを次の状態に推移させる
 	 */
 	public void next(){
-		int[][] numOfSurvivorsAround = new int[this.getCols()][this.getRows()];
+		int numOfSuvivor;
+		boolean nextBoard[][] = new boolean[this.getRows()][this.getRows()];
 
-		for (int i = 0; i < this.getCols(); i++) {
-			for (int j = 0; j < this.getRows(); j++) {
-				numOfSurvivorsAround[i][j] = this.countSuvivorsAround(i, j);
+		for (int i = 0; i < this.getRows(); i++) {
+			for (int j = 0; j < this.getCols(); j++) {
+				numOfSuvivor = countSuvivorsAround(i, j);
+				/* 今生きているなら周りの生存者が2または3で生き続けられる
+				 * もし死んでいるなら周りの生存者が3で生き返る
+				 */
+				if(isAlive(i, j)){
+					if(numOfSuvivor == 2 || numOfSuvivor == 3)
+						nextBoard[i][j] = true;
+					else
+						nextBoard[i][j] = false;
+				}else{
+					if(numOfSuvivor == 3)
+						nextBoard[i][j] = true;
+					else
+						nextBoard[i][j] = false;
+				}
 			}
 		}
 
+		try{
+			BoardHistories.push(this);
+		}catch(IllegalAccessError e){
+			BoardHistories.removeLast();
+			BoardHistories.push(this);
+		}
+
+		changeToNewBoard(nextBoard);
+		fireUpdate();
+
 	}
+
 
 
 }
