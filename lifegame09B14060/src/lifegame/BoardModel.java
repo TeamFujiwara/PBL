@@ -120,7 +120,6 @@ public class BoardModel {
 	 */
 	public void changeCellsState(int r, int c){
 		this.cells[r][c] = !this.cells[r][c];
-		fireUpdate();
 	}
 
 	/**
@@ -234,10 +233,12 @@ public class BoardModel {
 
 		// 盤面を新しい状態にする
 		this.changeToNewBoard(nextBoard);
+
+		fireUpdate();
 	}
 
 	/**
-	 * 盤面を1つ前の状態に戻す。
+	 * 盤面を1つ前の状態に戻す。このメソッドを呼び出す前にisUndoableメソッドでundo可能であることを判別することが推奨される。
 	 * @throws NoSuchElementException 履歴スタックが空の場合
 	 */
 	public void undo() throws NoSuchElementException{
@@ -247,6 +248,16 @@ public class BoardModel {
 			throw e;
 		}
 
+		fireUpdate();
+
+	}
+
+	/**
+	 * 盤面が巻き戻せるかどうかを判別する。
+	 * @return 巻き戻せるならtrue,巻き戻せないならfalse
+	 */
+	public boolean isUndoable(){
+		return (this.BoardHistories.peek() != null) ? true : false;
 	}
 
 
