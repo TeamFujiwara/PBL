@@ -37,6 +37,8 @@ public class Main implements Runnable{
 	 * GUIを描画する
 	 */
 	public void run(){
+		final int minWindowSize;
+		BoardModel m = new BoardModel(10, 10);
 
 		// ウィンドウを作成する
 		JFrame frame = new JFrame();
@@ -44,12 +46,14 @@ public class Main implements Runnable{
 		frame.setTitle("Lifegame");
 
 		JPanel base = new JPanel();
+		BoardView view = new BoardView(m.getRows(),m.getCols());
+		minWindowSize = view.getCellSize()*Math.max(m.getRows(), m.getCols());
 		frame.setContentPane(base);
 		base.setPreferredSize(new Dimension(400,300));	//最大サイズの設定
-		frame.setMinimumSize(new Dimension(300, 200));	//最小サイズの設定
+		frame.setMinimumSize(new Dimension(minWindowSize, minWindowSize));	//最小サイズの設定
 
 		base.setLayout(new BorderLayout());
-		BoardView view = new BoardView(10,10);
+		view.setAlignmentY(base.CENTER_ALIGNMENT);
 		base.add(view,BorderLayout.CENTER);
 
 		frame.pack();
