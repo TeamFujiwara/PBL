@@ -21,6 +21,9 @@ public class BoardView extends JPanel implements BoardListener,MouseListener,Mou
 
 
 	public void setCellSize() {
+		this.cellSize = Math.min((this.getHeight() - 2)/this.getRows(), (this.getWidth() - 2)/this.getCols());
+		if(this.getHeight() > this.getWidth()){
+		}
 	}
 
 	/**
@@ -57,7 +60,6 @@ public class BoardView extends JPanel implements BoardListener,MouseListener,Mou
 		this.board = b;
 		this.rows = b.getRows();
 		this.cols = b.getCols();
-		this.cellSize = Math.min((this.getHeight() - 2)/this.getRows(), (this.getWidth() - 2)/this.getCols());
 		if(this.cellSize < MIN_CELL_SIZE) this.cellSize = MIN_CELL_SIZE;
 	}
 
