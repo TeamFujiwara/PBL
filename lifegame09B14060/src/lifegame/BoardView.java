@@ -1,5 +1,7 @@
 package lifegame;
 
+import static org.hamcrest.CoreMatchers.theInstance;
+
 import java.awt.Graphics;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -14,6 +16,9 @@ public class BoardView extends JPanel implements BoardListener,MouseListener,Mou
 	private static final int MIN_CELL_SIZE = 30;
 	//セルのサイズ
 	private int cellSize;
+	private BoardModel board;
+
+
 
 	public void setCellSize() {
 	}
@@ -47,19 +52,20 @@ public class BoardView extends JPanel implements BoardListener,MouseListener,Mou
 	 * @param rows 行数
 	 * @param cols 列数
 	 */
-	public BoardView(int rows, int cols) {
+	public BoardView(BoardModel b) {
 		super();
-		this.rows = rows;
-		this.cols = cols;
+		this.board = b;
+		this.rows = b.getRows();
+		this.cols = b.getCols();
 		this.cellSize = Math.min((this.getHeight() - 2)/this.getRows(), (this.getWidth() - 2)/this.getCols());
 		if(this.cellSize < MIN_CELL_SIZE) this.cellSize = MIN_CELL_SIZE;
 	}
 
 	@Override
 	public void paint(Graphics g) {
-		this.setCellSize();
-		final int maxFieldHieght = this.getCellSize()*this.getRows();
-		final int maxFieldWidth = this.getCellSize()*this.getCols();
+		setCellSize();
+		final int maxFieldHieght = getCellSize()*getRows();
+		final int maxFieldWidth = getCellSize()*getCols();
 		super.paint(g);	//superクラス(JPanel)の背景を塗りつぶすメソッド
 
 
@@ -73,11 +79,54 @@ public class BoardView extends JPanel implements BoardListener,MouseListener,Mou
 
 		/*
 		 * ここにセルを塗りつぶす処理を記述
-		 * fireUpdateを受け取るために別メソッドにするほうが望ましい(gを引数で受け取って)
 		 */
+
+		for (int i = 0; i < this.board.getRows(); i++) {
+			for(int j = 0; j < this.board.getCols(); j++){
+				if(board.isAlive(i, j))
+					g.fillRect(this.getRowsY(i) + 1, this.getColsX(j) + 1, cellSize - 1, cellSize - 1);
+			}
+		}
 
 
 	}
+
+	/**
+	 * 指定したy座標を含むセルの縦方向の要素を返す
+	 * @param y 縦方向の座標(タイトルバーを除く)
+	 * @return セルの縦の要素番号
+	 */
+	private int getRowlements(int y){
+		return y / this.cellSize;
+	}
+
+	 /** 指定したx座標を含むセルの横方向の要素を返す
+	 * @param x 横方向の座標
+	 * @return セルの横の要素番号
+	 */
+	private int getColsElements(int x){
+		return x / this.cellSize;
+	}
+
+	/**
+	 * 指定した行の上端のx座標を返す
+	 * @param rows 行
+	 * @return y座標
+	 */
+	private int getRowsY(int rows){
+		return rows * getCellSize();
+	}
+
+	/**
+	 * 指定した列の左端のY座標を返す
+	 * @param cols 列
+	 * @return x座標
+	 */
+	private int getColsX(int cols){
+		return cols * getCellSize();
+	}
+
+
 
 
 	/**
@@ -112,7 +161,11 @@ public class BoardView extends JPanel implements BoardListener,MouseListener,Mou
 	@Override
 	public void mousePressed(MouseEvent e) {
 		// TODO 自動生成されたメソッド・スタブ
-
+		this.board.changeCellsState(
+				this.getRowlements(e.getPoint().y),
+				this.getColsElements(e.getPoint().x));
+		// debug
+		System.out.println("clicked");
 	}
 
 	@Override
@@ -140,6 +193,7 @@ public class BoardView extends JPanel implements BoardListener,MouseListener,Mou
 	@Override
 	public void updated(BoardModel m) {
 		// TODO 自動生成されたメソッド・スタブ
+		repaint();
 
 	}
 
