@@ -47,16 +47,27 @@ public class Main implements Runnable{
 
 		JPanel base = new JPanel();
 		BoardView view = new BoardView(m.getRows(),m.getCols());
+		
+		
+		// 最小ウィンドウサイズを計算する
 		minWindowSize = view.getCellSize()*Math.max(m.getRows(), m.getCols());
+		
 		frame.setContentPane(base);
 		base.setPreferredSize(new Dimension(400,300));	//最大サイズの設定
-		frame.setMinimumSize(new Dimension(minWindowSize, minWindowSize));	//最小サイズの設定
 
 		base.setLayout(new BorderLayout());
-		view.setAlignmentY(base.CENTER_ALIGNMENT);
+		// 中央揃えしたいけどできない
+		view.setAlignmentY(JPanel.CENTER_ALIGNMENT);
 		base.add(view,BorderLayout.CENTER);
 
 		frame.pack();
+		// タイトルバーや境界を含めた最小値を設定する(packした後でないとこの値が取得できない)
+		frame.setMinimumSize(new Dimension(minWindowSize
+				+ frame.getInsets().left
+				+ frame.getInsets().right,
+				minWindowSize
+				+ frame.getInsets().top
+				+ frame.getInsets().bottom));
 		frame.setVisible(true);
 	}
 
