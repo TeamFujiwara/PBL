@@ -1,11 +1,13 @@
 package lifegame;
 
-import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 
 import javax.swing.JPanel;
 
-public class BoardView extends JPanel {
+public class BoardView extends JPanel implements BoardListener,MouseListener,MouseMotionListener {
 	private final int rows;
 	private final int cols;
 	// セルの1辺の長さの最小値
@@ -68,6 +70,13 @@ public class BoardView extends JPanel {
 		for (int i = 1; i <= this.getCols(); i++) {
 			g.drawLine(0, this.getCellSize()*i, maxFieldWidth, this.getCellSize()*i);
 		}
+
+		/*
+		 * ここにセルを塗りつぶす処理を記述
+		 * fireUpdateを受け取るために別メソッドにするほうが望ましい(gを引数で受け取って)
+		 */
+
+
 	}
 
 
@@ -75,5 +84,63 @@ public class BoardView extends JPanel {
 	 *	serialVersionUIDの設定(Eclipseのエラー対策で、実際にこのフィールドは使用しない)
 	 */
 	private static final long serialVersionUID = 4584313266405816505L;
+
+	/**
+	 * セルの状態を一括変更する。
+	 */
+	@Override
+	public void mouseDragged(MouseEvent e) {
+		// TODO 自動生成されたメソッド・スタブ
+
+	}
+
+	@Override
+	public void mouseMoved(MouseEvent e) {
+		// TODO 自動生成されたメソッド・スタブ
+
+	}
+
+	@Override
+	public void mouseClicked(MouseEvent e) {
+		// TODO 自動生成されたメソッド・スタブ
+
+	}
+
+	/**
+	 * セルの状態を変化させる。
+	 */
+	@Override
+	public void mousePressed(MouseEvent e) {
+		// TODO 自動生成されたメソッド・スタブ
+
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e) {
+		// TODO 自動生成されたメソッド・スタブ
+
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent e) {
+		// TODO 自動生成されたメソッド・スタブ
+
+	}
+
+
+	@Override
+	public void mouseExited(MouseEvent e) {
+		// TODO 自動生成されたメソッド・スタブ
+
+	}
+
+	/**
+	 * セルの状態が変化した時に呼び出される。この場合は各セルの状態を取得して塗りつぶす。
+	 */
+	@Override
+	public void updated(BoardModel m) {
+		// TODO 自動生成されたメソッド・スタブ
+
+	}
 
 }

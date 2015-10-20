@@ -47,11 +47,11 @@ public class Main implements Runnable{
 
 		JPanel base = new JPanel();
 		BoardView view = new BoardView(m.getRows(),m.getCols());
-		
-		
+
+
 		// 最小ウィンドウサイズを計算する
 		minWindowSize = view.getCellSize()*Math.max(m.getRows(), m.getCols());
-		
+
 		frame.setContentPane(base);
 		base.setPreferredSize(new Dimension(400,300));	//最大サイズの設定
 
@@ -59,6 +59,10 @@ public class Main implements Runnable{
 		// 中央揃えしたいけどできない
 		view.setAlignmentY(JPanel.CENTER_ALIGNMENT);
 		base.add(view,BorderLayout.CENTER);
+
+		/*
+		 * ここにNewGame,Undo,Nextボタンをそれぞれ配置する(演習資料を見ること)
+		 */
 
 		frame.pack();
 		// タイトルバーや境界を含めた最小値を設定する(packした後でないとこの値が取得できない)
