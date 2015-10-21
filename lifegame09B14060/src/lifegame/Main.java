@@ -8,10 +8,6 @@ package lifegame;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
-
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -21,7 +17,6 @@ public class Main implements Runnable{
 
 	public static void main(String[] args) {
 		BoardModel tested = new BoardModel(10, 10);
-
 
 		tested.next();
 		tested.printForDebug();
@@ -42,9 +37,9 @@ public class Main implements Runnable{
 		BoardModel m = new BoardModel(10, 10);
 		BoardView view = new BoardView(m);
 		// 各ボタンを作成する
-		JButton NewGameBottun = new JButton("New Game");
-		JButton undoBottun = new JButton("Undo");
-		JButton nextBottun = new JButton("Next");
+		JButton NewGamebutton = new JButton("New Game");
+		JButton undobutton = new JButton("Undo");
+		JButton nextbutton = new JButton("Next");
 
 
 		m.changeCellsState(2, 2);
@@ -52,6 +47,7 @@ public class Main implements Runnable{
 		m.changeCellsState(4, 1);
 		m.changeCellsState(4, 2);
 		m.changeCellsState(4, 3);
+
 
 		// ウィンドウを作成する
 		JFrame frame = new JFrame();
@@ -61,7 +57,7 @@ public class Main implements Runnable{
 		// baseコンポネントを作成し、レイアウトをBorderLayoutにする
 		JPanel base = new JPanel();
 		BorderLayout baseLayout = new BorderLayout();
-		JPanel Bottuns = new JPanel();
+		JPanel buttons = new JPanel();
 
 		// 最小ウィンドウサイズを設定する
 		minWindowSize = view.getCellSize()*Math.max(m.getRows(), m.getCols());
@@ -82,14 +78,24 @@ public class Main implements Runnable{
 
 		// baseにセルとボタンを配置する
 		base.add(view,BorderLayout.CENTER);
-		base.add(Bottuns,BorderLayout.SOUTH);
-		Bottuns.setLayout(new FlowLayout());
-		Bottuns.add(NewGameBottun);
-		Bottuns.add(undoBottun);
-		Bottuns.add(nextBottun);
+		base.add(buttons,BorderLayout.SOUTH);
+		buttons.setLayout(new FlowLayout());
+		buttons.add(NewGamebutton);
+		buttons.add(undobutton);
+		buttons.add(nextbutton);
+
+		NewGamebutton.addActionListener(new NewGameListener(m));
+		nextbutton.addActionListener(new NextListener(m));
+		UndoListener undoListener = new UndoListener(m, undobutton);
+		undobutton.addActionListener(undoListener);
+
+
 
 		// 盤面のBoardListenerにviewを追加
 		m.addListener(view);
+
+		// 盤面のhistoryのlistenerにundoListerを追加
+		m.BoardHistories.addListener(undoListener);
 
 		/*
 		 * ここにNewGame,Undo,Nextボタンをそれぞれ配置する(演習資料を見ること)
@@ -104,7 +110,7 @@ public class Main implements Runnable{
 				minWindowSize
 				+ frame.getInsets().top
 				+ frame.getInsets().bottom
-				+ Bottuns.getSize().height
+				+ buttons.getSize().height
 				+ 2));
 		frame.setVisible(true);
 	}

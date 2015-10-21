@@ -15,7 +15,7 @@ public class BoardModel {
 	private final int rows;
 	private ArrayList<BoardListener> listeners;
 	// (APIより) ArrayDequeは16個まで要素を格納できる
-	private ArrayDeque<boolean[][]> BoardHistories = new ArrayDeque<boolean[][]>();
+	public ArrayDequeWithListener<boolean[][]> BoardHistories = new ArrayDequeWithListener<boolean[][]>();
 
 	/**
 	 * (テスト用)
@@ -34,7 +34,6 @@ public class BoardModel {
 		this.cols = cols;
 		cells = new boolean[rows][cols];
 		this.listeners = new ArrayList<BoardListener>();
-		addListener(new ModelPrinter());
 	}
 
 	/**
@@ -235,6 +234,7 @@ public class BoardModel {
 		this.changeToNewBoard(nextBoard);
 
 		fireUpdate();
+		BoardHistories.fireUpdate();
 	}
 
 	/**
@@ -249,6 +249,7 @@ public class BoardModel {
 		}
 
 		fireUpdate();
+		BoardHistories.fireUpdate();
 
 	}
 

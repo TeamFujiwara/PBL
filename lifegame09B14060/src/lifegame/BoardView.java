@@ -1,7 +1,5 @@
 package lifegame;
 
-import static org.hamcrest.CoreMatchers.theInstance;
-
 import java.awt.Graphics;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -18,8 +16,9 @@ public class BoardView extends JPanel implements BoardListener,MouseListener,Mou
 	private int cellSize;
 	private BoardModel board;
 
-
-
+	/**
+	 * ウィンドウサイズに合わせたセルのサイズを決定する
+	 */
 	public void setCellSize() {
 		this.cellSize = Math.min((this.getHeight() - 2)/this.getRows(), (this.getWidth() - 2)/this.getCols());
 		if(this.getHeight() > this.getWidth()){
@@ -61,6 +60,7 @@ public class BoardView extends JPanel implements BoardListener,MouseListener,Mou
 		this.rows = b.getRows();
 		this.cols = b.getCols();
 		if(this.cellSize < MIN_CELL_SIZE) this.cellSize = MIN_CELL_SIZE;
+		board.addListener(this);
 	}
 
 	@Override
@@ -197,6 +197,10 @@ public class BoardView extends JPanel implements BoardListener,MouseListener,Mou
 		// TODO 自動生成されたメソッド・スタブ
 		repaint();
 
+		// debug
+		System.out.println("updated");
+
 	}
+
 
 }
