@@ -5,7 +5,6 @@
  */
 package lifegame;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.NoSuchElementException;
 
@@ -14,25 +13,19 @@ public class BoardModel {
 	private final int cols;
 	private final int rows;
 	private ArrayList<BoardListener> listeners;
-	// (APIより) ArrayDequeは16個まで要素を格納できる
+	// 盤面の履歴を保存するスタック
 	public ArrayDequeWithListener<boolean[][]> BoardHistories = new ArrayDequeWithListener<boolean[][]>();
 
-	/**
-	 * (テスト用)
-	 * @return
-	 */
-	public ArrayDeque<boolean[][]> getBoardHistories() {
-		return BoardHistories;
-	}
 
 	/**
+	 * コンストラクタ
 	 * @param rows 行数
 	 * @param cols 列数
 	 */
 	public BoardModel(int rows, int cols) {
 		this.rows = rows;
 		this.cols = cols;
-		cells = new boolean[rows][cols];
+		this.cells = new boolean[rows][cols];
 		this.listeners = new ArrayList<BoardListener>();
 	}
 
@@ -54,7 +47,7 @@ public class BoardModel {
 	}
 
 	/**
-	 * 現在の盤面を複製する。(別のbooelan[][]インスタンスを生成)
+	 * 現在の盤面を複製する。(別のboolean[][]インスタンスを生成)
 	 * テストでも用いるためpublic
 	 * @return 複製した盤面
 	 */
@@ -62,6 +55,7 @@ public class BoardModel {
 		boolean[][] b = new boolean[this.getRows()][this.getCols()];
 		for (int i = 0; i < this.getRows(); i++) {
 			for (int j = 0; j < this.getCols(); j++) {
+				// 注: b[i][j] = getCells()[i][j]としてしまうと、同じ参照をしてしまうので複製したことにならない
 				b[i][j] = (this.getCells()[i][j]) ? true : false;
 			}
 		}
@@ -219,12 +213,12 @@ public class BoardModel {
 		/*
 		 * 今の状態を履歴スタックにpushする
 		 * スタックの容量がいっぱいの場合は一番古い履歴を消す
-		 * yet tested
 		 */
 
 		try{
 			BoardHistories.push(this.duplicateBoard());
 		}catch(IllegalAccessError e){
+			// スタックがいっぱいの時は一番古い履歴を削除
 			BoardHistories.removeLast();
 			BoardHistories.push(this.duplicateBoard());
 		}
@@ -233,7 +227,9 @@ public class BoardModel {
 		// 盤面を新しい状態にする
 		this.changeToNewBoard(nextBoard);
 
+		// 盤面の更新を通知する
 		fireUpdate();
+		// 盤面ヒストリーの更新を通知する
 		BoardHistories.fireUpdate();
 	}
 
@@ -245,10 +241,13 @@ public class BoardModel {
 		try{
 			changeToNewBoard(BoardHistories.pop());
 		}catch(NoSuchElementException e){
+			// スタックに要素がないときは例外をthrowする
 			throw e;
 		}
 
+		// 盤面の更新を通知する
 		fireUpdate();
+		// 盤面ヒストリーの更新を通知する
 		BoardHistories.fireUpdate();
 
 	}

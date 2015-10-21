@@ -5,11 +5,16 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 
-public class UndoListener implements ActionListener, StackListener {
+public class UndoButtonListener implements ActionListener, StackListener {
 	private BoardModel m;
 	private JButton button;
 
-	public UndoListener(BoardModel m,JButton button) {
+	/**
+	 * コンストラクタ
+	 * @param m undo対象となるBoardModel
+	 * @param button undoボタン
+	 */
+	public UndoButtonListener(BoardModel m,JButton button) {
 		super();
 		this.m = m;
 		this.button = button;
@@ -17,20 +22,14 @@ public class UndoListener implements ActionListener, StackListener {
 	}
 
 
-
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		// TODO 自動生成されたメソッド・スタブ
 		m.undo();
-		if(!m.isUndoable())
-			button.setEnabled(false);
 	}
-
 
 
 	@Override
 	public void stackUpdated() {
-		// TODO 自動生成されたメソッド・スタブ
 		if(m.isUndoable())
 			button.setEnabled(true);
 		else

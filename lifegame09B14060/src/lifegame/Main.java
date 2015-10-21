@@ -16,14 +16,6 @@ import javax.swing.SwingUtilities;
 public class Main implements Runnable{
 
 	public static void main(String[] args) {
-		BoardModel tested = new BoardModel(10, 10);
-
-		tested.next();
-		tested.printForDebug();
-		System.out.println(tested.isUndoable());
-		tested.undo();
-		tested.printForDebug();
-		System.out.println(tested.isUndoable());
 
 		SwingUtilities.invokeLater(new Main());
 	}
@@ -85,8 +77,9 @@ public class Main implements Runnable{
 		buttons.add(nextbutton);
 
 		NewGamebutton.addActionListener(new NewGameListener(m));
-		nextbutton.addActionListener(new NextListener(m));
-		UndoListener undoListener = new UndoListener(m, undobutton);
+		NewGamebutton.addActionListener(new NewGameListener(m));
+		nextbutton.addActionListener(new NextButtonListener(m));
+		UndoButtonListener undoListener = new UndoButtonListener(m, undobutton);
 		undobutton.addActionListener(undoListener);
 
 
