@@ -12,6 +12,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
+import javax.swing.border.BevelBorder;
 
 public class Main implements Runnable{
 
@@ -83,6 +84,9 @@ public class Main implements Runnable{
 		undobutton.addActionListener(undoListener);
 
 
+		//viewの領域を枠線表示
+		// for debug
+		view.setBorder(new BevelBorder(BevelBorder.RAISED));
 
 		// 盤面のBoardListenerにviewを追加
 		m.addListener(view);

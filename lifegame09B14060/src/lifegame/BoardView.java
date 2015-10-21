@@ -164,28 +164,27 @@ public class BoardView extends JPanel implements BoardListener,MouseListener,Mou
 	public void mousePressed(MouseEvent e) {
 		// TODO 自動生成されたメソッド・スタブ
 		this.board.changeCellsState(
-				this.getRowlements(e.getPoint().y),
-				this.getColsElements(e.getPoint().x));
-		// debug
+				this.getRowlements(e.getY()),
+				this.getColsElements(e.getX()));
+		// for debug
 		System.out.println("clicked");
 	}
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
-		// TODO 自動生成されたメソッド・スタブ
-
+		//do nothing
 	}
 
 	@Override
 	public void mouseEntered(MouseEvent e) {
-		// TODO 自動生成されたメソッド・スタブ
+		// do nothing
 
 	}
 
 
 	@Override
 	public void mouseExited(MouseEvent e) {
-		// TODO 自動生成されたメソッド・スタブ
+		// do nothing
 
 	}
 
