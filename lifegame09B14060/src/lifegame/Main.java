@@ -27,19 +27,12 @@ public class Main implements Runnable{
 	public void run(){
 		int minWindowSize;
 		// 盤面を作成する
-		BoardModel m = new BoardModel(10, 10);
+		BoardModel m = new BoardModel(12, 8);
 		BoardView view = new BoardView(m);
 		// 各ボタンを作成する
 		JButton NewGamebutton = new JButton("New Game");
 		JButton undobutton = new JButton("Undo");
 		JButton nextbutton = new JButton("Next");
-
-
-		m.changeCellsState(2, 2);
-		m.changeCellsState(3, 3);
-		m.changeCellsState(4, 1);
-		m.changeCellsState(4, 2);
-		m.changeCellsState(4, 3);
 
 
 		// ウィンドウを作成する
@@ -59,9 +52,6 @@ public class Main implements Runnable{
 		frame.setContentPane(base);
 		base.setPreferredSize(new Dimension(500,500));	//初期サイズの設定
 
-		/*
-		 * 中央揃えしたいけどできていない
-		 */
 		if(base.getHeight() > base.getWidth()){
 			baseLayout.setHgap(base.getHeight() - base.getWidth());
 		}else{
@@ -77,7 +67,7 @@ public class Main implements Runnable{
 		buttons.add(undobutton);
 		buttons.add(nextbutton);
 
-		NewGamebutton.addActionListener(new NewGameListener(m));
+		// 各ボタンのActionListenerを追加する
 		NewGamebutton.addActionListener(new NewGameListener(m));
 		nextbutton.addActionListener(new NextButtonListener(m));
 		UndoButtonListener undoListener = new UndoButtonListener(m, undobutton);

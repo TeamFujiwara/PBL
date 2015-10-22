@@ -15,6 +15,7 @@ public class NewGameListener implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
+		// なぜかNew gameが2つ生成されてしまう
 		Main NewGame = new Main();
 		NewGame.main(null);
 	}

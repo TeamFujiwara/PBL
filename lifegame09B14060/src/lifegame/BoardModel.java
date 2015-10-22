@@ -40,7 +40,7 @@ public class BoardModel {
 	/**
 	 * 盤面の更新をBoardListerに通知する
 	 */
-	private void fireUpdate(){
+	public void fireUpdate(){
 		for(BoardListener listener: this.listeners){
 			listener.updated(this);
 		}
