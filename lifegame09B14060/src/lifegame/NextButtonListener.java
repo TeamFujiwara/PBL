@@ -15,6 +15,9 @@ public class NextButtonListener implements ActionListener {
 		this.m = m;
 	}
 
+	/**
+	 * 次の盤面にボードを進める
+	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		m.next();

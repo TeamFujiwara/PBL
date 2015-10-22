@@ -5,12 +5,12 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 
-public class UndoButtonListener implements ActionListener, StackListener {
+public class UndoButtonListener implements ActionListener, DequeListener {
 	private BoardModel m;
 	private JButton button;
 
 	/**
-	 * コンストラクタ
+	 *
 	 * @param m undo対象となるBoardModel
 	 * @param button undoボタン
 	 */
@@ -18,6 +18,7 @@ public class UndoButtonListener implements ActionListener, StackListener {
 		super();
 		this.m = m;
 		this.button = button;
+		// はじめはUndoボタンを無効にする
 		button.setEnabled(false);
 	}
 
@@ -28,8 +29,11 @@ public class UndoButtonListener implements ActionListener, StackListener {
 	}
 
 
+	/**
+	 * Undoできるかできないかでボタンの有効・無効を切り替える
+	 */
 	@Override
-	public void stackUpdated() {
+	public void dequeUpdated() {
 		if(m.isUndoable())
 			button.setEnabled(true);
 		else

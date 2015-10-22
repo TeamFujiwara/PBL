@@ -8,15 +8,14 @@ import java.awt.event.MouseMotionListener;
 import javax.swing.JPanel;
 
 public class BoardView extends JPanel implements BoardListener,MouseListener,MouseMotionListener {
-	private final int rows;
-	private final int cols;
-	// セルの1辺の長さの最小値
-	private static final int MIN_CELL_SIZE = 30;
-	//セルのサイズ
-	private int cellSize;
-	private BoardModel board;
+	private final int rows;	// 行数
+	private final int cols;	// 列数
+	private static final int MIN_CELL_SIZE = 30; // セルの1辺の長さの最小値(見やすさ維持のため、ウィンドウサイズによらずこれ以上小さくすることができない)
+	private static final int BORDER_WIDTH = 1;
+	private int cellSize;	// セルの1辺の長さ
+	private BoardModel board;	//盤面
 
-	// プレス・ドラッグ時に直前に変化させたセルの行番号、セル番号
+	// プレス・ドラッグ時に直前に変化させたセルの行番号、セル番号(-1の場合設定されていないことを示す)
 	private int CellsRowPressedJustBefore = -1;
 	private int CellsColPressedJustBefore = -1;
 
@@ -29,7 +28,8 @@ public class BoardView extends JPanel implements BoardListener,MouseListener,Mou
 		this.board = b;
 		this.rows = b.getRows();
 		this.cols = b.getCols();
-		if(this.cellSize < MIN_CELL_SIZE) this.cellSize = MIN_CELL_SIZE;
+
+		// 盤面の変更、マウスの動作をこのインスタンスが受け取るように設定
 		board.addListener(this);
 		this.addMouseListener(this);
 		this.addMouseMotionListener(this);
@@ -39,26 +39,23 @@ public class BoardView extends JPanel implements BoardListener,MouseListener,Mou
 	 * ウィンドウサイズに合わせたセルのサイズを決定する
 	 */
 	public void setCellSize() {
-		this.cellSize = Math.min((getHeight() - 2)/getRows(), (getWidth() - 2)/getCols());
-		/*
-		 * 中央揃えにするためにここに余白設定をかく
-		 */
-		if(getHeight() > this.getWidth()){
-		}
-	}
+		cellSize = Math.min((getHeight() - 2)/getRows(), (getWidth() - 2)/getCols());
+		if(cellSize < MIN_CELL_SIZE)
+			cellSize = MIN_CELL_SIZE;
+    }
 
 	/**
 	 * rows(行数)のgetter
 	 */
 	public int getRows() {
-		return rows;
+		return this.rows;
 	}
 
 	/**
 	 * cols(列数)のgetter
 	 */
 	public int getCols() {
-		return cols;
+		return this.cols;
 	}
 
 	/**
@@ -80,19 +77,23 @@ public class BoardView extends JPanel implements BoardListener,MouseListener,Mou
 
 		// 縦線を引く
 		for (int i = 1; i <= this.getCols(); i++) {
-			g.drawLine(this.getCellSize()*i, 0, this.getCellSize()*i, maxFieldHieght);
+			g.drawLine(getCellSize()*i, 0, getCellSize()*i, maxFieldHieght);
 		}
 
 		// 横線を引く
 		for (int i = 1; i <= this.getRows(); i++) {
-			g.drawLine(0, this.getCellSize()*i, maxFieldWidth, this.getCellSize()*i);
+			g.drawLine(0, getCellSize()*i, maxFieldWidth, getCellSize()*i);
 		}
 
 		// 生きているセルを塗りつぶす
-		for (int i = 0; i < this.board.getRows(); i++) {
-			for(int j = 0; j < this.board.getCols(); j++){
+		for (int i = 0; i < board.getRows(); i++) {
+			for(int j = 0; j < board.getCols(); j++){
 				if(board.isAlive(i, j))
-					g.fillRect(this.getColsX(j) + 1, this.getRowsY(i) + 1, cellSize - 1, cellSize - 1);
+					// 上下左右の枠線以外の部分を塗りつぶす
+					g.fillRect(getColsX(j) + BORDER_WIDTH
+							, getRowsY(i) + BORDER_WIDTH
+							, cellSize - BORDER_WIDTH
+							, cellSize - BORDER_WIDTH);
 			}
 		}
 
@@ -105,7 +106,7 @@ public class BoardView extends JPanel implements BoardListener,MouseListener,Mou
 	 * @return セルの縦の要素番号
 	 */
 	private int getRowlements(int y){
-		return y / this.cellSize;
+		return y / cellSize;
 	}
 
 	 /** 指定したx座標を含むセルの横方向の要素を返す
@@ -113,7 +114,7 @@ public class BoardView extends JPanel implements BoardListener,MouseListener,Mou
 	 * @return セルの横の要素番号
 	 */
 	private int getColsElements(int x){
-		return x / this.cellSize;
+		return x / cellSize;
 	}
 
 	/**
@@ -134,33 +135,22 @@ public class BoardView extends JPanel implements BoardListener,MouseListener,Mou
 		return cols * getCellSize();
 	}
 
-
-
-
-	/**
-	 *	serialVersionUIDの設定(Eclipseのエラー対策で、実際にこのフィールドは使用しない)
-	 */
-	private static final long serialVersionUID = 4584313266405816505L;
-
 	/**
 	 * セルの状態を一括変更する。
 	 */
 	@Override
 	public void mouseDragged(MouseEvent e) {
-		/*
-		 * 注 同じセルにいても1ピクセル動くごとにセルの状態が変わってしまう
-		 */
 		changeCellsColor(e);
 	}
 
 	@Override
 	public void mouseMoved(MouseEvent e) {
-
+		// do nothing
 	}
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
-
+		// do nothing
 	}
 
 	/**
@@ -171,25 +161,37 @@ public class BoardView extends JPanel implements BoardListener,MouseListener,Mou
 		changeCellsColor(e);
 	}
 
+	/**
+	 * セルの生死を変更する。マウスがクリックされた時、またはドラッグ中に上に乗った時のみ使用。
+	 */
 	private void changeCellsColor(MouseEvent e){
         int row = getRowlements(e.getY());
 	    int col = getColsElements(e.getX());
 
 	    // クリックされた位置がセル内の時だけchangeCellsStateを呼び出す
-	    if(row < this.getRows() && col < this.getCols()){
+	    if(row < getRows() && col < getCols()){
+	    	/*
+	    	 * クリックされた位置が直前に状態を変更させたセルならchangeCellsStateを呼び出さない
+	    	 * (この条件を追加しないと、セル内でも1ピクセル動くごとに状態が入れ替わるため目がチカチカする)
+	    	 */
 	    	if(row != CellsRowPressedJustBefore || col != CellsColPressedJustBefore){
-	    		this.board.changeCellsState(
-                    this.getRowlements(e.getY()),
-                    this.getColsElements(e.getX()));
+	    		board.changeCellsState(
+                    getRowlements(e.getY()),
+                    getColsElements(e.getX()));
 	    	}
 	    }
 
+	    // 直前に変更したセル番号を更新
 	    CellsRowPressedJustBefore = row;
 	    CellsColPressedJustBefore = col;
 
+	    // 盤面通知を送信
 		board.fireUpdate();
 	}
 
+	/**
+	 * マウスが離された時は、直前に変更したセル情報をリセット
+	 */
 	@Override
 	public void mouseReleased(MouseEvent e) {
 		CellsRowPressedJustBefore = -1;
@@ -210,13 +212,18 @@ public class BoardView extends JPanel implements BoardListener,MouseListener,Mou
 	}
 
 	/**
-	 * セルの状態が変化した時に呼び出される。この場合は各セルの状態を取得して塗りつぶす。
+	 * 盤面が更新されたときは再描画する。
 	 */
 	@Override
 	public void updated(BoardModel m) {
-		// TODO 自動生成されたメソッド・スタブ
 		repaint();
 	}
+
+	/**
+	 *	serialVersionUIDの設定(Eclipseのエラー対策で、実際にはこのフィールドは使用しない)
+	 */
+	private static final long serialVersionUID = 4584313266405816505L;
+
 
 
 }

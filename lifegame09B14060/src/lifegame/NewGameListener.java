@@ -13,11 +13,12 @@ public class NewGameListener implements ActionListener {
 	}
 
 
+	/**
+	 * 新しいゲームを開始(同一プロセスで実行)
+	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		// なぜかNew gameが2つ生成されてしまう
-		Main NewGame = new Main();
-		NewGame.main(null);
+		Main.main(null);
 	}
 
 }

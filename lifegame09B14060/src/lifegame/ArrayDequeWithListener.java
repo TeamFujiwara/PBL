@@ -7,14 +7,14 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 
 public class ArrayDequeWithListener<E> extends ArrayDeque<E> {
-	ArrayList<StackListener> stackListener = new ArrayList<>();
+	ArrayList<DequeListener> stackListener = new ArrayList<>();
 
 	/**
 	 * スタックの更新を通知する
 	 */
 	public void fireUpdate(){
-		for(StackListener listener : this.stackListener){
-			listener.stackUpdated();
+		for(DequeListener listener : this.stackListener){
+			listener.dequeUpdated();
 		}
 	}
 
@@ -22,7 +22,7 @@ public class ArrayDequeWithListener<E> extends ArrayDeque<E> {
 	 * listenerを追加する
 	 * @param listener 追加するlistener
 	 */
-	public void addListener(StackListener listener){
+	public void addListener(DequeListener listener){
 		stackListener.add(listener);
 	}
 

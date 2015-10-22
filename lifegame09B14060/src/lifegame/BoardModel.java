@@ -12,6 +12,7 @@ public class BoardModel {
 	private boolean[][] cells;
 	private final int cols;
 	private final int rows;
+	// 盤面更新を通知するlistenerリスト
 	private ArrayList<BoardListener> listeners;
 	// 盤面の履歴を保存するスタック
 	public ArrayDequeWithListener<boolean[][]> BoardHistories = new ArrayDequeWithListener<boolean[][]>();
@@ -34,14 +35,14 @@ public class BoardModel {
 	 * @param listener 追加するリスナー
 	 */
 	public void addListener(BoardListener listener){
-		this.listeners.add(listener);
+		listeners.add(listener);
 	}
 
 	/**
 	 * 盤面の更新をBoardListerに通知する
 	 */
 	public void fireUpdate(){
-		for(BoardListener listener: this.listeners){
+		for(BoardListener listener: listeners){
 			listener.updated(this);
 		}
 	}
@@ -52,11 +53,11 @@ public class BoardModel {
 	 * @return 複製した盤面
 	 */
 	public boolean[][] duplicateBoard(){
-		boolean[][] b = new boolean[this.getRows()][this.getCols()];
-		for (int i = 0; i < this.getRows(); i++) {
-			for (int j = 0; j < this.getCols(); j++) {
+		boolean[][] b = new boolean[getRows()][getCols()];
+		for (int i = 0; i < getRows(); i++) {
+			for (int j = 0; j < getCols(); j++) {
 				// 注: b[i][j] = getCells()[i][j]としてしまうと、同じ参照をしてしまうので複製したことにならない
-				b[i][j] = (this.getCells()[i][j]) ? true : false;
+				b[i][j] = (getCells()[i][j]) ? true : false;
 			}
 		}
 		return b;
@@ -67,7 +68,7 @@ public class BoardModel {
 	 * @return 生きていればtrue,死んでいればfalse
 	 */
 	public boolean isAlive(int r, int c){
-		return (this.cells[r][c] == true) ? true : false;
+		return (cells[r][c] == true) ? true : false;
 	}
 
 	/**
@@ -98,8 +99,8 @@ public class BoardModel {
 	 * (テスト用)現在のボードの状態をコンソールに出力する
 	 */
 	public void printForDebug(){
-		for (int i = 0; i < this.getRows(); i++) {
-			for (int j = 0; j < this.getCols(); j++) {
+		for (int i = 0; i < getRows(); i++) {
+			for (int j = 0; j < getCols(); j++) {
 				System.out.printf("%c", (isAlive(i, j)) ? '※' : '-');
 			}
 			// 改行する
@@ -121,10 +122,10 @@ public class BoardModel {
 	 * @param b 変更後のボード
 	 */
 	public void changeToNewBoard(boolean[][] b){
-		for(int i=0; i < this.getRows(); i++){
-			for(int j=0; j < this.getCols(); j++){
+		for(int i=0; i < getRows(); i++){
+			for(int j=0; j < getCols(); j++){
 				if(getCells()[i][j] != b[i][j])
-					this.changeCellsState(i, j);
+					changeCellsState(i, j);
 			}
 		}
 
@@ -147,13 +148,13 @@ public class BoardModel {
 				if(isAlive(r-1,c-1))
 					++SuvivorNum;
 			//一番下でない場合は左斜め下を計算
-			if(r < this.getRows() - 1)
+			if(r < getRows() - 1)
 				if(isAlive(r+1, c-1))
 					++SuvivorNum;
 		}
 
 		// 右端でない場合
-		if(c < this.getCols() - 1){
+		if(c < getCols() - 1){
 			// まず右隣を計算
 			if(isAlive(r, c+1))
 				++SuvivorNum;
@@ -162,7 +163,7 @@ public class BoardModel {
 				if(isAlive(r-1, c+1))
 					++SuvivorNum;
 			//一番下でない場合は右斜め下を計算
-			if(r < this.getRows() - 1)
+			if(r < getRows() - 1)
 				if(isAlive(r+1, c+1))
 					++SuvivorNum;
 		}
@@ -173,7 +174,7 @@ public class BoardModel {
 				++SuvivorNum;
 
 		//一番下でない場合は下を計算
-		if(r < this.getRows() - 1)
+		if(r < getRows() - 1)
 			if(isAlive(r+1,c))
 				++SuvivorNum;
 
@@ -184,17 +185,15 @@ public class BoardModel {
 	 * ボードを次の状態に推移させる
 	 */
 	public void next(){
-		// 隣接する生きているセルの個数
-		int numOfSuvivor;
-		// 次の盤面を保持する配列
-		boolean nextBoard[][] = new boolean[this.getRows()][this.getCols()];
+		int numOfSuvivor;	// 隣接する生きているセルの個数
+        boolean nextBoard[][] = new boolean[getRows()][getCols()];	// 次の盤面を保持する配列
 
-		for (int i = 0; i < this.getRows(); i++) {
-			for (int j = 0; j < this.getCols(); j++) {
+		for (int i = 0; i < getRows(); i++) {
+			for (int j = 0; j < getCols(); j++) {
 				numOfSuvivor = countSuvivorsAround(i, j);
 
 				/* 今生きているなら周りの生存者が2または3で生き続けられる
-				 * もし死んでいるなら周りの生存者が3で生き返る
+				 * 今死んでいるなら周りの生存者が3で生き返る
 				 */
 				if(isAlive(i, j)){
 					if(numOfSuvivor == 2 || numOfSuvivor == 3)
@@ -212,7 +211,7 @@ public class BoardModel {
 
 		/*
 		 * 今の状態を履歴スタックにpushする
-		 * スタックの容量がいっぱいの場合は一番古い履歴を消す
+		 * スタックの容量がいっぱいの場合は一番古い履歴を消してからpushする
 		 */
 
 		try{
@@ -254,7 +253,6 @@ public class BoardModel {
 
 	/**
 	 * 盤面が巻き戻せるかどうかを判別する。
-	 * @return 巻き戻せるならtrue,巻き戻せないならfalse
 	 */
 	public boolean isUndoable(){
 		return (this.BoardHistories.peek() != null) ? true : false;

@@ -67,7 +67,7 @@ public class Main implements Runnable{
 		buttons.add(undobutton);
 		buttons.add(nextbutton);
 
-		// 各ボタンのActionListenerを追加する
+		// 各ボタンのActionListenerを追加する(Listenerに動作を記述してある)
 		NewGamebutton.addActionListener(new NewGameListener(m));
 		nextbutton.addActionListener(new NextButtonListener(m));
 		UndoButtonListener undoListener = new UndoButtonListener(m, undobutton);
