@@ -1,5 +1,6 @@
 package lifegame;
 
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -49,6 +50,8 @@ public class BoardView extends JPanel implements BoardListener,MouseListener,Mou
 		cellSize = Math.min((getHeight() - 2)/getRows(), (getWidth() - 2)/getCols());
 		if(cellSize < MIN_CELL_SIZE)
 			cellSize = MIN_CELL_SIZE;
+
+		setPreferredSize(new Dimension(cellSize*getCols(), cellSize*getRows()));
     }
 
 	/**
@@ -176,7 +179,7 @@ public class BoardView extends JPanel implements BoardListener,MouseListener,Mou
 	    int col = getColsElements(e.getX());
 
 	    // クリックされた位置がセル内の時だけchangeCellsStateを呼び出す
-	    if(row < getRows() && col < getCols()){
+	    if(row < getRows() && col < getCols() && row >= 0 && cols >= 0){
 	    	/*
 	    	 * クリックされた位置が直前に状態を変更させたセルならchangeCellsStateを呼び出さない
 	    	 * (この条件を追加しないと、セル内でも1ピクセル動くごとに状態が入れ替わるため目がチカチカする)
