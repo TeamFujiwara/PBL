@@ -10,14 +10,21 @@ import javax.swing.JPanel;
 public class BoardView extends JPanel implements BoardListener,MouseListener,MouseMotionListener {
 	private final int rows;	// 行数
 	private final int cols;	// 列数
-	private static final int MIN_CELL_SIZE = 30; // セルの1辺の長さの最小値(見やすさ維持のため、ウィンドウサイズによらずこれ以上小さくすることができない)
-	private static final int BORDER_WIDTH = 1;
+	public static final int MIN_CELL_SIZE = 10; // セルの1辺の長さの最小値(見やすさ維持のため、ウィンドウサイズによらずこれ以上小さくすることができない)
+	public static final int BORDER_WIDTH = 1;
 	private int cellSize;	// セルの1辺の長さ
 	private BoardModel board;	//盤面
 
 	// プレス・ドラッグ時に直前に変化させたセルの行番号、セル番号(-1の場合設定されていないことを示す)
 	private int CellsRowPressedJustBefore = -1;
 	private int CellsColPressedJustBefore = -1;
+
+	/*
+	 *	追加したい機能
+	 *	・起動画面はボードのマス数設定から
+	 *	・それか既存の版をOpenする
+	 *	・拡張子は.lg(ライフゲーム)
+	 */
 
 	/**
 	 * ボードを作成する。

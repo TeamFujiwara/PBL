@@ -258,6 +258,10 @@ public class BoardModel {
 		return (this.BoardHistories.peek() != null) ? true : false;
 	}
 
+	public void openFromFile(String filename){
+
+	}
+
 
 
 }
