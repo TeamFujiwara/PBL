@@ -5,8 +5,16 @@
  */
 package lifegame;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.NoSuchElementException;
+import java.util.StringTokenizer;
+
+import javax.swing.SwingUtilities;
 
 public class BoardModel {
 	private boolean[][] cells;
@@ -258,8 +266,58 @@ public class BoardModel {
 		return (this.BoardHistories.peek() != null) ? true : false;
 	}
 
-	public void openFromFile(String filename){
+	public static void openFromFile(File file){
+		try {
+			BufferedReader buffer = new BufferedReader(new FileReader(file));
 
+			String firstCSVLine = buffer.readLine();
+			StringTokenizer stFirst = new StringTokenizer(firstCSVLine, ",");
+
+			int rows = 0;
+			int cols = 0;
+
+			rows = Integer.parseInt(stFirst.nextToken());
+			cols = Integer.parseInt(stFirst.nextToken());
+
+			if(rows == 0 || cols == 0){
+				System.out.println("ファイルが不正です");
+				System.exit(-1);
+			}
+
+			BoardModel board = new BoardModel(rows, cols);
+			String line = "";
+
+			while((line = buffer.readLine()) != null){
+				StringTokenizer st = new StringTokenizer(line, ",");
+				while(st.hasMoreTokens()){
+					// for debug
+					System.out.println("changed");
+					board.changeCellsState(
+							Integer.parseInt(st.nextToken()),
+							Integer.parseInt(st.nextToken())
+							);
+				}
+			}
+
+			buffer.close();
+
+			/*
+			 * ここ怪しい
+			 * mainにどうやってboardmodelを渡せるか考えて
+			 *
+			 * 10/28追記
+			 * ・Mainのrunはstaticじゃないからインスタンスにより固有
+			 * →つまりこれのmが空かそうでないかで場合分けすればいい
+			 */
+			SwingUtilities.invokeLater(new Main(board));
+
+		}catch(FileNotFoundException e){
+			System.out.println("ファイルが見つかりません");
+			System.exit(-1);
+		}catch (IOException e) {
+			System.out.println("IOException Error");
+			System.exit(-1);
+		}
 	}
 
 

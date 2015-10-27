@@ -13,14 +13,28 @@ import java.awt.event.ActionListener;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
-import javax.swing.border.BevelBorder;
 
 public class Main implements Runnable{
+
+	/**
+	 * ボードモデルが既にある場合のコンストラクタ。主にファイルを開く際に用いる。
+	 */
+	public Main(BoardModel m) {
+		super();
+		this.m = m;
+	}
+
+
+	public Main() {
+		// TODO 自動生成されたコンストラクター・スタブ
+	}
+
 
 	BoardModel m;
 
@@ -52,6 +66,33 @@ public class Main implements Runnable{
 		}
 	}
 
+	class OpenButton implements ActionListener {
+		JFrame frame;
+
+
+
+		public OpenButton(JFrame frame) {
+			super();
+			this.frame = frame;
+		}
+
+
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			JFileChooser fileChooser = new JFileChooser();
+			int selected = fileChooser.showOpenDialog(this.frame);
+
+			if(selected == JFileChooser.APPROVE_OPTION){
+				System.out.println("approved");
+				BoardModel.openFromFile(fileChooser.getSelectedFile());
+			}else{
+				System.out.println("error in opening file");
+			}
+		}
+
+	}
+
 	class NewGameListener implements ActionListener {
 
 		public NewGameListener() {
@@ -60,10 +101,13 @@ public class Main implements Runnable{
 
 
 		/**
-		 * 新しいゲームを開始(同一プロセスで実行)
+		 * 新しいゲームを開始(同一プロセスで実行
 		 */
 		@Override
 		public void actionPerformed(ActionEvent e) {
+			/*
+			 * 要修正
+			 */
 			Main.main(null);
 		}
 
@@ -86,7 +130,6 @@ public class Main implements Runnable{
 	}
 
 	public static void main(String[] args) {
-
 		SwingUtilities.invokeLater(new Main());
 	}
 
@@ -134,15 +177,27 @@ public class Main implements Runnable{
 	 */
 	public void run(){
 		// NewGameWindowを表示して、行数と列数を指定する。
-		JFrame newGameFrame = new JFrame("New LifeGame");
-		newGameFrame.setBounds(30, 30, 0, 0);
-		newGameFrame.setSize(new Dimension(200, 200));
+		if(m == null){
+			JFrame newGameFrame = new JFrame("New LifeGame");
+			newGameFrame.setBounds(30, 30, 0, 0);
+			newGameFrame.setSize(new Dimension(200, 200));
 
+
+			newGameFrame.setContentPane(makeNewGamePanel(newGameFrame));
+
+			newGameFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+			newGameFrame.pack();
+			newGameFrame.setVisible(true);
+		}else{
+			showGameFrame();
+		}
+	}
+
+	private JPanel makeNewGamePanel(JFrame frame)	{
 		JPanel newGameFramePanel = new JPanel();
-		newGameFramePanel.setLayout(new BoxLayout(newGameFramePanel, BoxLayout.PAGE_AXIS));
+        newGameFramePanel.setLayout(new BoxLayout(newGameFramePanel, BoxLayout.PAGE_AXIS));
 
-		newGameFrame.setContentPane(newGameFramePanel);
-
+        // 1行目は行の設定パネル
 		JPanel rowsSetLine = new JPanel();
 		rowsSetLine.setLayout(new FlowLayout(FlowLayout.CENTER));
 		rowsSetLine.add(new JLabel("行数"));
@@ -150,6 +205,7 @@ public class Main implements Runnable{
 		rowsSetLine.add(getRowsField);
 		newGameFramePanel.add(rowsSetLine);
 
+		// 2行目は列の設定パネル
 		JPanel colsSetLine = new JPanel();
 		colsSetLine.setLayout(new FlowLayout(FlowLayout.CENTER));
 		colsSetLine.add(new JLabel("列数"));
@@ -157,6 +213,7 @@ public class Main implements Runnable{
 		colsSetLine.add(getColsField);
 		newGameFramePanel.add(colsSetLine);
 
+		// 3行目はStartボタンとOpenボタンを作成
 		JPanel ButtonsLine = new JPanel();
 		ButtonsLine.setLayout(new FlowLayout(FlowLayout.CENTER));
 		JButton StartButton = new JButton("Start");
@@ -164,15 +221,12 @@ public class Main implements Runnable{
 		JButton OpenButton = new JButton("Open");
 		ButtonsLine.add(OpenButton);
 		newGameFramePanel.add(ButtonsLine);
+		StartButton.addActionListener(new StartButton(frame, getRowsField, getColsField));
+		OpenButton.addActionListener(new OpenButton(frame));
 
-		newGameFrame.getRootPane().setDefaultButton(StartButton);
+		frame.getRootPane().setDefaultButton(StartButton);
 
-		StartButton.addActionListener(new StartButton(newGameFrame, getRowsField, getColsField));
-
-		newGameFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		newGameFrame.pack();
-		newGameFrame.setVisible(true);
-
+		return newGameFramePanel;
 	}
 
 
@@ -239,12 +293,12 @@ public class Main implements Runnable{
 		frame.setMinimumSize(new Dimension(minWindowSize
 				+ frame.getInsets().left
 				+ frame.getInsets().right
-				+ 2,
+				+ 2*BoardView.BORDER_WIDTH,
 				minWindowSize
 				+ frame.getInsets().top
 				+ frame.getInsets().bottom
 				+ buttons.getSize().height
-				+ 2));
+				+ 2*BoardView.BORDER_WIDTH));
 		frame.setVisible(true);
 
 	}
