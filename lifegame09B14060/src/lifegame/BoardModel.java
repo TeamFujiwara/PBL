@@ -9,14 +9,11 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
-
-import javax.swing.SwingUtilities;
-
-import org.omg.PortableInterceptor.SUCCESSFUL;
 
 public class BoardModel {
 	private boolean[][] cells;
@@ -31,6 +28,9 @@ public class BoardModel {
 	public static final int FILE_NOT_FOUND = -1;
 	public static final int IMCOMPATIBLE_FILE = -2;
 	public static final int IO_ERROR = -3;
+
+	public static final int SAVE_SUCCESSFUL = 1;
+	public static final int SAVE_FAILED = -1;
 
 	/**
 	 * コンストラクタ
@@ -333,6 +333,29 @@ public class BoardModel {
 		}catch (IOException e) {
 			return IO_ERROR;
 		}
+	}
+
+	// TODO 未完成
+	public static int saveBoardFile(BoardModel m,File file) {
+		try {
+			FileWriter fw = new FileWriter(file);
+			fw.write(m.getRows() + "," + m.getCols() + "\n");
+
+			for(int i=0; i < m.getRows(); i++){
+				for(int j=0; j < m.getCols(); j++){
+					if(m.isAlive(i, j)){
+						fw.write(i + "," + j + "\n");
+					}
+				}
+			}
+			fw.close();
+			return SAVE_SUCCESSFUL;
+		} catch (IOException e) {
+			// TODO 自動生成された catch ブロック
+			System.out.println("ファイル書き込みエラー");
+			return SAVE_FAILED;
+		}
+
 	}
 
 
