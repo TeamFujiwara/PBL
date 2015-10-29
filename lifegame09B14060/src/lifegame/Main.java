@@ -10,17 +10,21 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
 public class Main implements Runnable{
+
+	BoardModel m;
 
 	/**
 	 * ボードモデルが既にある場合のコンストラクタ。主にファイルを開く際に用いる。
@@ -34,9 +38,6 @@ public class Main implements Runnable{
 	public Main() {
 		// TODO 自動生成されたコンストラクター・スタブ
 	}
-
-
-	BoardModel m;
 
 	class StartButton implements ActionListener{
 		int rows;
@@ -78,16 +79,42 @@ public class Main implements Runnable{
 
 
 
+		/**
+		 * Openボタンがクリックされた時はファイル選択ダイアログを表示して、開くファイルを指定する。
+		 */
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			JFileChooser fileChooser = new JFileChooser();
 			int selected = fileChooser.showOpenDialog(this.frame);
 
+			/*
+			 * selectedにはファイルの選択状態が入る
+			 * openStatusには指定したファイルが正しい形式になっているかどうかが入る
+			 */
 			if(selected == JFileChooser.APPROVE_OPTION){
+				// for debug
 				System.out.println("approved");
-				BoardModel.openFromFile(fileChooser.getSelectedFile());
+
+				int openStaus = BoardModel.openFromFile(fileChooser.getSelectedFile());
+
+				if(openStaus == BoardModel.OPEN_SUCCESSFUL){
+					frame.dispose();
+				}else if(openStaus == BoardModel.IMCOMPATIBLE_FILE){
+					JLabel message = new JLabel("ファイル形式が正しくありません。詳しくはドキュメントを参照してください。");
+					JOptionPane.showMessageDialog(this.frame, message);
+				}else if(openStaus == BoardModel.FILE_NOT_FOUND){
+					JLabel message = new JLabel("ファイルが見つかりません。");
+					JOptionPane.showMessageDialog(this.frame, message);
+				}else if(openStaus == BoardModel.IO_ERROR){
+					JLabel message = new JLabel("IOエラーが発生しました。");
+					JOptionPane.showMessageDialog(this.frame, message);
+				}
+			}else if(selected == JFileChooser.CANCEL_OPTION){
+				// for debug
+				System.out.println("canseled");
 			}else{
-				System.out.println("error in opening file");
+				// for debug
+				System.out.println("error");
 			}
 		}
 
@@ -101,17 +128,17 @@ public class Main implements Runnable{
 
 
 		/**
-		 * 新しいゲームを開始(同一プロセスで実行
+		 * 新しいゲームを開始(別スレッドで開始)
 		 */
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			/*
-			 * 要修正
-			 */
-			Main.main(null);
+			// TODO: マルチスレッドの作成
+			GameStart gameStart = new GameStart();
+			gameStart.start();
 		}
 
 	}
+
 
 	class NextButtonListener implements ActionListener {
 
@@ -189,6 +216,7 @@ public class Main implements Runnable{
 			newGameFrame.pack();
 			newGameFrame.setVisible(true);
 		}else{
+			// ここでマルチスレッドを作成
 			showGameFrame();
 		}
 	}
@@ -243,7 +271,7 @@ public class Main implements Runnable{
 
 		// ウィンドウを作成する
 		JFrame frame = new JFrame();
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frame.setTitle("Lifegame");
 
 		// baseコンポネントを作成し、レイアウトをBorderLayoutにする

@@ -16,6 +16,8 @@ import java.util.StringTokenizer;
 
 import javax.swing.SwingUtilities;
 
+import org.omg.PortableInterceptor.SUCCESSFUL;
+
 public class BoardModel {
 	private boolean[][] cells;
 	private final int cols;
@@ -25,6 +27,10 @@ public class BoardModel {
 	// 盤面の履歴を保存するスタック
 	public ArrayDequeWithListener<boolean[][]> BoardHistories = new ArrayDequeWithListener<boolean[][]>();
 
+	public static final int OPEN_SUCCESSFUL = 1;
+	public static final int FILE_NOT_FOUND = -1;
+	public static final int IMCOMPATIBLE_FILE = -2;
+	public static final int IO_ERROR = -3;
 
 	/**
 	 * コンストラクタ
@@ -266,7 +272,13 @@ public class BoardModel {
 		return (this.BoardHistories.peek() != null) ? true : false;
 	}
 
-	public static void openFromFile(File file){
+	/**
+	 * ファイルから既存のボードを開く
+	 * @param file 開くファイル
+	 * @return
+	 */
+	public static int openFromFile(File file){
+
 		try {
 			BufferedReader buffer = new BufferedReader(new FileReader(file));
 
@@ -276,12 +288,17 @@ public class BoardModel {
 			int rows = 0;
 			int cols = 0;
 
+			if(stFirst.countTokens() != 2){
+				buffer.close();
+				return IMCOMPATIBLE_FILE;
+			}
+
 			rows = Integer.parseInt(stFirst.nextToken());
 			cols = Integer.parseInt(stFirst.nextToken());
 
 			if(rows == 0 || cols == 0){
-				System.out.println("ファイルが不正です");
-				System.exit(-1);
+				buffer.close();
+				return IMCOMPATIBLE_FILE;
 			}
 
 			BoardModel board = new BoardModel(rows, cols);
@@ -292,31 +309,29 @@ public class BoardModel {
 				while(st.hasMoreTokens()){
 					// for debug
 					System.out.println("changed");
-					board.changeCellsState(
-							Integer.parseInt(st.nextToken()),
-							Integer.parseInt(st.nextToken())
-							);
+					if(st.countTokens() == 2){
+						board.changeCellsState(
+								Integer.parseInt(st.nextToken()),
+								Integer.parseInt(st.nextToken())
+								);
+					}else{
+						buffer.close();
+						return IMCOMPATIBLE_FILE;
+					}
 				}
 			}
 
 			buffer.close();
 
-			/*
-			 * ここ怪しい
-			 * mainにどうやってboardmodelを渡せるか考えて
-			 *
-			 * 10/28追記
-			 * ・Mainのrunはstaticじゃないからインスタンスにより固有
-			 * →つまりこれのmが空かそうでないかで場合分けすればいい
-			 */
-			SwingUtilities.invokeLater(new Main(board));
+			// 新しいスレッドから新規ゲームを開始
+			Thread ct = new Thread(new Main(board));
+			ct.start();
 
+			return OPEN_SUCCESSFUL;
 		}catch(FileNotFoundException e){
-			System.out.println("ファイルが見つかりません");
-			System.exit(-1);
+			return FILE_NOT_FOUND;
 		}catch (IOException e) {
-			System.out.println("IOException Error");
-			System.exit(-1);
+			return IO_ERROR;
 		}
 	}
 

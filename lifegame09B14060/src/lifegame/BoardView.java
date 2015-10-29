@@ -20,12 +20,7 @@ public class BoardView extends JPanel implements BoardListener,MouseListener,Mou
 	private int CellsRowPressedJustBefore = -1;
 	private int CellsColPressedJustBefore = -1;
 
-	/*
-	 *	追加したい機能
-	 *	・起動画面はボードのマス数設定から
-	 *	・それか既存の版をOpenする
-	 *	・拡張子は.lg(ライフゲーム)
-	 */
+
 
 	/**
 	 * ボードを作成する。
