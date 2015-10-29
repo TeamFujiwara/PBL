@@ -24,16 +24,21 @@ public class BoardModel {
 	// 盤面の履歴を保存するスタック
 	public ArrayDequeWithListener<boolean[][]> BoardHistories = new ArrayDequeWithListener<boolean[][]>();
 
+	/*
+	 * メソッドopenFromFileで使用する戻り値
+	 */
 	public static final int OPEN_SUCCESSFUL = 1;
 	public static final int FILE_NOT_FOUND = -1;
 	public static final int IMCOMPATIBLE_FILE = -2;
 	public static final int IO_ERROR = -3;
 
+	/*
+	 * メソッドsaveBoardFileで使用
+	 */
 	public static final int SAVE_SUCCESSFUL = 1;
 	public static final int SAVE_FAILED = -1;
 
 	/**
-	 * コンストラクタ
 	 * @param rows 行数
 	 * @param cols 列数
 	 */
@@ -335,12 +340,21 @@ public class BoardModel {
 		}
 	}
 
-	// TODO 未完成
+	/**
+	 * ボード画面をファイルに書き出す。
+	 * @param m 書き出すボード
+	 * @param file 書き出し先のファイル
+	 * @return SAVE_SUCCESSFUL 正常に書き出し
+	 * @return SAVE_FAILED 正常に書き出されなかった
+	 */
 	public static int saveBoardFile(BoardModel m,File file) {
 		try {
 			FileWriter fw = new FileWriter(file);
+
+			// 最初の1行はボードの行数、列数を書き出す
 			fw.write(m.getRows() + "," + m.getCols() + "\n");
 
+			// 2行目以降に生きているセルを書き出す
 			for(int i=0; i < m.getRows(); i++){
 				for(int j=0; j < m.getCols(); j++){
 					if(m.isAlive(i, j)){
@@ -351,7 +365,7 @@ public class BoardModel {
 			fw.close();
 			return SAVE_SUCCESSFUL;
 		} catch (IOException e) {
-			// TODO 自動生成された catch ブロック
+			// 例外をキャッチした時はエラーを返す
 			System.out.println("ファイル書き込みエラー");
 			return SAVE_FAILED;
 		}

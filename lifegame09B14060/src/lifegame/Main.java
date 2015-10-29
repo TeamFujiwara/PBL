@@ -10,13 +10,14 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
-
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -36,32 +37,41 @@ public class Main implements Runnable{
 
 
 	public Main() {
-		// TODO 自動生成されたコンストラクター・スタブ
+		super();
 	}
 
-	class StartButton implements ActionListener{
+	class StartButtonAction implements ActionListener{
 		int rows;
 		int cols;
-		JFrame frame;
-		JTextField rField;
-		JTextField cField;
+		JFrame parent;	//親フレーム
+		JTextField rField;	//行数を入力するフィールド
+		JTextField cField;	//列数を入力するフィールド
 
-		public StartButton(JFrame frame, JTextField rField, JTextField cField) {
+		public StartButtonAction(JFrame frame, JTextField rField, JTextField cField) {
 			super();
-			this.frame = frame;
+			this.parent = frame;
 			this.rField = rField;
 			this.cField = cField;
 		}
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			// TODO 自動生成されたメソッド・スタブ
 			if(rField.getText() != null && cField.getText() != null){
-				rows = Integer.parseInt(rField.getText());
-				cols = Integer.parseInt(cField.getText());
+				final int MaxRowsNum = BoardView.getMaximamRows();
+				final int MaxColsNum = BoardView.getMaximumCols();
+
+				while(true){
+					rows = Integer.parseInt(rField.getText());
+					cols = Integer.parseInt(cField.getText());
+					if(rows < MaxRowsNum && cols < MaxColsNum){
+						break;
+					}else{
+						//TODO エラーメッセージ
+					}
+				}
 
 				m = new BoardModel(rows, cols);
-				frame.dispose();
+				parent.dispose();
 				showGameFrame();
 			}
 		}
@@ -120,6 +130,56 @@ public class Main implements Runnable{
 
 	}
 
+	class SaveButton implements ActionListener {
+		JFrame frame;
+		BoardModel m;
+
+
+		public SaveButton(JFrame frame,BoardModel m) {
+			super();
+			this.frame = frame;
+			this.m = m;
+		}
+
+
+
+		/**
+		 * Openボタンがクリックされた時はファイル選択ダイアログを表示して、開くファイルを指定する。
+		 */
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			JFileChooser fileChooser = new JFileChooser();
+			int selected = fileChooser.showSaveDialog(this.frame);
+
+			/*
+			 * selectedにはファイルの選択状態が入る
+			 * openStatusには指定したファイルが正しい形式になっているかどうかが入る
+			 */
+			if(selected == JFileChooser.APPROVE_OPTION){
+				// for debug
+				System.out.println("approved");
+
+				int saveStatus = BoardModel.saveBoardFile(m, fileChooser.getSelectedFile());
+
+				if(saveStatus == BoardModel.SAVE_SUCCESSFUL){
+					JLabel message = new JLabel("保存されました。");
+					JOptionPane.showMessageDialog(frame, message);
+				}else{
+					JLabel message = new JLabel("正しく保存されませんでした。");
+					JOptionPane.showMessageDialog(this.frame, message);
+				}
+			}else if(selected == JFileChooser.CANCEL_OPTION){
+				// for debug
+				System.out.println("canseled");
+			}else{
+				// for debug
+				System.out.println("error");
+			}
+		}
+
+	}
+
+
 	class NewGameListener implements ActionListener {
 
 		public NewGameListener() {
@@ -132,7 +192,6 @@ public class Main implements Runnable{
 		 */
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			// TODO: マルチスレッドの作成
 			GameStart gameStart = new GameStart();
 			gameStart.start();
 		}
@@ -199,6 +258,8 @@ public class Main implements Runnable{
 	}
 
 
+
+
 	/**
 	 * GUIを描画する
 	 */
@@ -249,11 +310,12 @@ public class Main implements Runnable{
 		JButton OpenButton = new JButton("Open");
 		ButtonsLine.add(OpenButton);
 		newGameFramePanel.add(ButtonsLine);
-		StartButton.addActionListener(new StartButton(frame, getRowsField, getColsField));
+		StartButton.addActionListener(new StartButtonAction(frame, getRowsField, getColsField));
 		OpenButton.addActionListener(new OpenButton(frame));
 
 		frame.getRootPane().setDefaultButton(StartButton);
 
+		//TODO 画面に収まりきる最大の列数、行数を把握して制限する
 		return newGameFramePanel;
 	}
 
@@ -262,17 +324,43 @@ public class Main implements Runnable{
 		int minWindowSize;
 		// 盤面を作成する
 		BoardView view = new BoardView(m);
-		// 各ボタンを作成する
-		JButton NewGamebutton = new JButton("New Game");
-		JButton undobutton = new JButton("Undo");
-		JButton nextbutton = new JButton("Next");
-
 
 
 		// ウィンドウを作成する
 		JFrame frame = new JFrame();
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frame.setTitle("Lifegame");
+
+		// メニューバーを表示
+		JMenuBar mb = new JMenuBar();
+
+		JMenu FileMenu = new JMenu("File");
+		mb.add(FileMenu);
+		JMenu GameMenu = new JMenu("Game");
+		mb.add(GameMenu);
+
+		JMenuItem NewGameMenu = new JMenuItem("Newgame");
+		JMenuItem OpenMenu = new JMenuItem("Open");
+		JMenuItem SaveMenu = new JMenuItem("Save");
+
+		NewGameMenu.addActionListener(new NewGameListener());
+		OpenMenu.addActionListener(new OpenButton(frame));
+		SaveMenu.addActionListener(new SaveButton(frame, this.m));
+
+		FileMenu.add(OpenMenu);
+		FileMenu.add(SaveMenu);
+
+		GameMenu.add(NewGameMenu);
+
+		frame.setJMenuBar(mb);
+
+
+		// 各ボタンを作成する
+		JButton NewGamebutton = new JButton("New Game");
+		JButton undobutton = new JButton("Undo");
+		JButton nextbutton = new JButton("Next");
+
+
 
 		// baseコンポネントを作成し、レイアウトをBorderLayoutにする
 		JPanel base = new JPanel();
@@ -302,22 +390,15 @@ public class Main implements Runnable{
 		undobutton.addActionListener(undoListener);
 
 
-		//viewの領域を枠線表示
-		// for debug
-		// view.setBorder(new BevelBorder(BevelBorder.RAISED));
-
 		// 盤面のBoardListenerにviewを追加
 		m.addListener(view);
 
 		// 盤面のhistoryのlistenerにundoListerを追加
 		m.BoardHistories.addListener(undoListener);
 
-		/*
-		 * ここにNewGame,Undo,Nextボタンをそれぞれ配置する(演習資料を見ること)
-		 */
 
 		frame.pack();
-		// タイトルバーや境界を含めた最小値を設定する(packした後でないとこの値が取得できない)
+		// タイトルバーや境界を含めた最小値を設定する
 		frame.setMinimumSize(new Dimension(minWindowSize
 				+ frame.getInsets().left
 				+ frame.getInsets().right

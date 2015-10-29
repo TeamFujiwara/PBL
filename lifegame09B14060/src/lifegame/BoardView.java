@@ -2,6 +2,7 @@ package lifegame;
 
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.GraphicsEnvironment;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -222,6 +223,18 @@ public class BoardView extends JPanel implements BoardListener,MouseListener,Mou
 	@Override
 	public void updated(BoardModel m) {
 		repaint();
+	}
+
+	public static int getMaximamRows() {
+		GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		return
+				env.getMaximumWindowBounds().y / MIN_CELL_SIZE;
+	}
+
+	public static int getMaximumCols() {
+		GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		return
+				env.getMaximumWindowBounds().x / MIN_CELL_SIZE;
 	}
 
 	/**
