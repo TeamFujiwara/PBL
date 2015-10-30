@@ -24,19 +24,6 @@ public class BoardModel {
 	// 盤面の履歴を保存するスタック
 	public ArrayDequeWithListener<boolean[][]> BoardHistories = new ArrayDequeWithListener<boolean[][]>();
 
-	/*
-	 * メソッドopenFromFileで使用する戻り値
-	 */
-	public static final int OPEN_SUCCESSFUL = 1;
-	public static final int FILE_NOT_FOUND = -1;
-	public static final int IMCOMPATIBLE_FILE = -2;
-	public static final int IO_ERROR = -3;
-
-	/*
-	 * メソッドsaveBoardFileで使用
-	 */
-	public static final int SAVE_SUCCESSFUL = 1;
-	public static final int SAVE_FAILED = -1;
 
 	/**
 	 * @param rows 行数
@@ -277,100 +264,7 @@ public class BoardModel {
 		return (this.BoardHistories.peek() != null) ? true : false;
 	}
 
-	/**
-	 * ファイルから既存のボードを開く
-	 * @param file 開くファイル
-	 * @return
-	 */
-	public static int openFromFile(File file){
 
-		try {
-			BufferedReader buffer = new BufferedReader(new FileReader(file));
-
-			String firstCSVLine = buffer.readLine();
-			StringTokenizer stFirst = new StringTokenizer(firstCSVLine, ",");
-
-			int rows = 0;
-			int cols = 0;
-
-			if(stFirst.countTokens() != 2){
-				buffer.close();
-				return IMCOMPATIBLE_FILE;
-			}
-
-			rows = Integer.parseInt(stFirst.nextToken());
-			cols = Integer.parseInt(stFirst.nextToken());
-
-			if(rows == 0 || cols == 0){
-				buffer.close();
-				return IMCOMPATIBLE_FILE;
-			}
-
-			BoardModel board = new BoardModel(rows, cols);
-			String line = "";
-
-			while((line = buffer.readLine()) != null){
-				StringTokenizer st = new StringTokenizer(line, ",");
-				while(st.hasMoreTokens()){
-					// for debug
-					System.out.println("changed");
-					if(st.countTokens() == 2){
-						board.changeCellsState(
-								Integer.parseInt(st.nextToken()),
-								Integer.parseInt(st.nextToken())
-								);
-					}else{
-						buffer.close();
-						return IMCOMPATIBLE_FILE;
-					}
-				}
-			}
-
-			buffer.close();
-
-			// 新しいスレッドから新規ゲームを開始
-			Thread ct = new Thread(new Main(board));
-			ct.start();
-
-			return OPEN_SUCCESSFUL;
-		}catch(FileNotFoundException e){
-			return FILE_NOT_FOUND;
-		}catch (IOException e) {
-			return IO_ERROR;
-		}
-	}
-
-	/**
-	 * ボード画面をファイルに書き出す。
-	 * @param m 書き出すボード
-	 * @param file 書き出し先のファイル
-	 * @return SAVE_SUCCESSFUL 正常に書き出し
-	 * @return SAVE_FAILED 正常に書き出されなかった
-	 */
-	public static int saveBoardFile(BoardModel m,File file) {
-		try {
-			FileWriter fw = new FileWriter(file);
-
-			// 最初の1行はボードの行数、列数を書き出す
-			fw.write(m.getRows() + "," + m.getCols() + "\n");
-
-			// 2行目以降に生きているセルを書き出す
-			for(int i=0; i < m.getRows(); i++){
-				for(int j=0; j < m.getCols(); j++){
-					if(m.isAlive(i, j)){
-						fw.write(i + "," + j + "\n");
-					}
-				}
-			}
-			fw.close();
-			return SAVE_SUCCESSFUL;
-		} catch (IOException e) {
-			// 例外をキャッチした時はエラーを返す
-			System.out.println("ファイル書き込みエラー");
-			return SAVE_FAILED;
-		}
-
-	}
 
 
 

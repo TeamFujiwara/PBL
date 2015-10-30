@@ -47,9 +47,9 @@ public class Main implements Runnable{
 		JTextField rField;	//行数を入力するフィールド
 		JTextField cField;	//列数を入力するフィールド
 
-		public StartButtonAction(JFrame frame, JTextField rField, JTextField cField) {
+		public StartButtonAction(JFrame parent, JTextField rField, JTextField cField) {
 			super();
-			this.parent = frame;
+			this.parent = parent;
 			this.rField = rField;
 			this.cField = cField;
 		}
@@ -57,32 +57,32 @@ public class Main implements Runnable{
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			if(rField.getText() != null && cField.getText() != null){
+				//TODO  エラーあり
 				final int MaxRowsNum = BoardView.getMaximamRows();
 				final int MaxColsNum = BoardView.getMaximumCols();
 
-				while(true){
-					rows = Integer.parseInt(rField.getText());
-					cols = Integer.parseInt(cField.getText());
-					if(rows < MaxRowsNum && cols < MaxColsNum){
-						break;
-					}else{
-						//TODO エラーメッセージ
-					}
+				rows = Integer.parseInt(rField.getText());
+				cols = Integer.parseInt(cField.getText());
+				if(rows > 0 && cols > 0){
+					m = new BoardModel(rows, cols);
+					parent.dispose();
+					showGameFrame();
+				}else{
+					//TODO エラーメッセージ
+					JLabel message = new JLabel("正しい値を入力してください");
+					JOptionPane.showMessageDialog(parent, message);
 				}
 
-				m = new BoardModel(rows, cols);
-				parent.dispose();
-				showGameFrame();
 			}
 		}
 	}
 
-	class OpenButton implements ActionListener {
+	class OpenButtonAction implements ActionListener {
 		JFrame frame;
 
 
 
-		public OpenButton(JFrame frame) {
+		public OpenButtonAction(JFrame frame) {
 			super();
 			this.frame = frame;
 		}
@@ -105,17 +105,17 @@ public class Main implements Runnable{
 				// for debug
 				System.out.println("approved");
 
-				int openStaus = BoardModel.openFromFile(fileChooser.getSelectedFile());
+				int openStaus = LifegameFile.openFromFile(fileChooser.getSelectedFile());
 
-				if(openStaus == BoardModel.OPEN_SUCCESSFUL){
+				if(openStaus == LifegameFile.OPEN_SUCCESSFUL){
 					frame.dispose();
-				}else if(openStaus == BoardModel.IMCOMPATIBLE_FILE){
+				}else if(openStaus == LifegameFile.IMCOMPATIBLE_FILE){
 					JLabel message = new JLabel("ファイル形式が正しくありません。詳しくはドキュメントを参照してください。");
 					JOptionPane.showMessageDialog(this.frame, message);
-				}else if(openStaus == BoardModel.FILE_NOT_FOUND){
+				}else if(openStaus == LifegameFile.FILE_NOT_FOUND){
 					JLabel message = new JLabel("ファイルが見つかりません。");
 					JOptionPane.showMessageDialog(this.frame, message);
-				}else if(openStaus == BoardModel.IO_ERROR){
+				}else if(openStaus == LifegameFile.IO_ERROR){
 					JLabel message = new JLabel("IOエラーが発生しました。");
 					JOptionPane.showMessageDialog(this.frame, message);
 				}
@@ -130,12 +130,12 @@ public class Main implements Runnable{
 
 	}
 
-	class SaveButton implements ActionListener {
+	class SaveButtonAction implements ActionListener {
 		JFrame frame;
 		BoardModel m;
 
 
-		public SaveButton(JFrame frame,BoardModel m) {
+		public SaveButtonAction(JFrame frame,BoardModel m) {
 			super();
 			this.frame = frame;
 			this.m = m;
@@ -159,9 +159,9 @@ public class Main implements Runnable{
 				// for debug
 				System.out.println("approved");
 
-				int saveStatus = BoardModel.saveBoardFile(m, fileChooser.getSelectedFile());
+				int saveStatus = LifegameFile.saveBoardFile(m, fileChooser.getSelectedFile());
 
-				if(saveStatus == BoardModel.SAVE_SUCCESSFUL){
+				if(saveStatus == LifegameFile.SAVE_SUCCESSFUL){
 					JLabel message = new JLabel("保存されました。");
 					JOptionPane.showMessageDialog(frame, message);
 				}else{
@@ -180,9 +180,9 @@ public class Main implements Runnable{
 	}
 
 
-	class NewGameListener implements ActionListener {
+	class NewGameAction implements ActionListener {
 
-		public NewGameListener() {
+		public NewGameAction() {
 			super();
 		}
 
@@ -199,9 +199,9 @@ public class Main implements Runnable{
 	}
 
 
-	class NextButtonListener implements ActionListener {
+	class NextButtonAction implements ActionListener {
 
-		public NextButtonListener() {
+		public NextButtonAction() {
 			super();
 		}
 
@@ -219,7 +219,7 @@ public class Main implements Runnable{
 		SwingUtilities.invokeLater(new Main());
 	}
 
-	class UndoButtonListener implements ActionListener, DequeListener {
+	class UndoButtonAction implements ActionListener, DequeListener {
 		private JButton button;
 
 		/**
@@ -227,7 +227,7 @@ public class Main implements Runnable{
 		 * @param m undo対象となるBoardModel
 		 * @param button undoボタン
 		 */
-		public UndoButtonListener(JButton button) {
+		public UndoButtonAction(JButton button) {
 			super();
 			this.button = button;
 			// はじめはUndoボタンを無効にする
@@ -311,7 +311,7 @@ public class Main implements Runnable{
 		ButtonsLine.add(OpenButton);
 		newGameFramePanel.add(ButtonsLine);
 		StartButton.addActionListener(new StartButtonAction(frame, getRowsField, getColsField));
-		OpenButton.addActionListener(new OpenButton(frame));
+		OpenButton.addActionListener(new OpenButtonAction(frame));
 
 		frame.getRootPane().setDefaultButton(StartButton);
 
@@ -343,9 +343,9 @@ public class Main implements Runnable{
 		JMenuItem OpenMenu = new JMenuItem("Open");
 		JMenuItem SaveMenu = new JMenuItem("Save");
 
-		NewGameMenu.addActionListener(new NewGameListener());
-		OpenMenu.addActionListener(new OpenButton(frame));
-		SaveMenu.addActionListener(new SaveButton(frame, this.m));
+		NewGameMenu.addActionListener(new NewGameAction());
+		OpenMenu.addActionListener(new OpenButtonAction(frame));
+		SaveMenu.addActionListener(new SaveButtonAction(frame, this.m));
 
 		FileMenu.add(OpenMenu);
 		FileMenu.add(SaveMenu);
@@ -384,9 +384,9 @@ public class Main implements Runnable{
 		buttons.add(nextbutton);
 
 		// 各ボタンのActionListenerを追加する(Listenerに動作を記述してある)
-		NewGamebutton.addActionListener(new NewGameListener());
-		nextbutton.addActionListener(new NextButtonListener());
-		UndoButtonListener undoListener = new UndoButtonListener(undobutton);
+		NewGamebutton.addActionListener(new NewGameAction());
+		nextbutton.addActionListener(new NextButtonAction());
+		UndoButtonAction undoListener = new UndoButtonAction(undobutton);
 		undobutton.addActionListener(undoListener);
 
 
