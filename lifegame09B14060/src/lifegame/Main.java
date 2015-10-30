@@ -174,6 +174,8 @@ public class Main implements Runnable{
 			}else{
 				// for debug
 				System.out.println("error");
+
+				// 追加
 			}
 		}
 
