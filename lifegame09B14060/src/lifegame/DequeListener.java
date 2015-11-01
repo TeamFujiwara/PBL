@@ -1,8 +1,8 @@
+
+package lifegame;
 /**
  * Deque内が更新されたときのListener
  */
-package lifegame;
-
 public interface DequeListener {
 
 	/**

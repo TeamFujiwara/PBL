@@ -1,9 +1,9 @@
+
+package lifegame;
 /**
- * 盤面が更新された時に通知を受け取るインターフェイス
+ * 盤面が更新された時に通知をインターフェイス
  * @author wataru hirota
  */
-package lifegame;
-
 public interface BoardListener {
 
 	public void updated(BoardModel m);

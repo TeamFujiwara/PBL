@@ -5,15 +5,8 @@
  */
 package lifegame;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.NoSuchElementException;
-import java.util.StringTokenizer;
 
 public class BoardModel {
 	private boolean[][] cells;
@@ -22,7 +15,7 @@ public class BoardModel {
 	// 盤面更新を通知するlistenerリスト
 	private ArrayList<BoardListener> listeners;
 	// 盤面の履歴を保存するスタック
-	public ArrayDequeWithListener<boolean[][]> BoardHistories = new ArrayDequeWithListener<boolean[][]>();
+	public ArrayDequeWithListener<boolean[][]> boardHistories = new ArrayDequeWithListener<boolean[][]>();
 
 
 	/**
@@ -221,11 +214,11 @@ public class BoardModel {
 		 */
 
 		try{
-			BoardHistories.push(this.duplicateBoard());
+			boardHistories.push(this.duplicateBoard());
 		}catch(IllegalAccessError e){
 			// スタックがいっぱいの時は一番古い履歴を削除
-			BoardHistories.removeLast();
-			BoardHistories.push(this.duplicateBoard());
+			boardHistories.removeLast();
+			boardHistories.push(this.duplicateBoard());
 		}
 
 
@@ -235,7 +228,7 @@ public class BoardModel {
 		// 盤面の更新を通知する
 		fireUpdate();
 		// 盤面ヒストリーの更新を通知する
-		BoardHistories.fireUpdate();
+		boardHistories.fireUpdate();
 	}
 
 	/**
@@ -244,7 +237,7 @@ public class BoardModel {
 	 */
 	public void undo() throws NoSuchElementException{
 		try{
-			changeToNewBoard(BoardHistories.pop());
+			changeToNewBoard(boardHistories.pop());
 		}catch(NoSuchElementException e){
 			// スタックに要素がないときは例外をthrowする
 			throw e;
@@ -253,7 +246,7 @@ public class BoardModel {
 		// 盤面の更新を通知する
 		fireUpdate();
 		// 盤面ヒストリーの更新を通知する
-		BoardHistories.fireUpdate();
+		boardHistories.fireUpdate();
 
 	}
 
@@ -261,7 +254,7 @@ public class BoardModel {
 	 * 盤面が巻き戻せるかどうかを判別する。
 	 */
 	public boolean isUndoable(){
-		return (this.BoardHistories.peek() != null) ? true : false;
+		return (this.boardHistories.peek() != null) ? true : false;
 	}
 
 

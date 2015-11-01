@@ -9,6 +9,8 @@ import java.awt.event.MouseMotionListener;
 
 import javax.swing.JPanel;
 
+
+
 public class BoardView extends JPanel implements BoardListener,MouseListener,MouseMotionListener {
 	private final int rows;	// 行数
 	private final int cols;	// 列数
@@ -227,15 +229,18 @@ public class BoardView extends JPanel implements BoardListener,MouseListener,Mou
 
 	public static int getMaximamRows() {
 		GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		// for debug
+		System.out.println(env.getMaximumWindowBounds());
 		return
-				env.getMaximumWindowBounds().y / MIN_CELL_SIZE;
+				env.getMaximumWindowBounds().height / MIN_CELL_SIZE;
 	}
 
 	public static int getMaximumCols() {
 		GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
 		return
-				env.getMaximumWindowBounds().x / MIN_CELL_SIZE;
+				env.getMaximumWindowBounds().width / MIN_CELL_SIZE;
 	}
+
 
 	/**
 	 *	serialVersionUIDの設定(Eclipseのエラー対策で、実際にはこのフィールドは使用しない)
