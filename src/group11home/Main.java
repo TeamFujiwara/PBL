@@ -5,18 +5,22 @@ import java.awt.Color;
 
 /**
  * ロボット本体のソースコード
- * 敵の情報はEnemyクラスに格納する
+ * レーダーからわかる敵の情報はhttp://www.solar-system.tuis.ac.jp/Java/robocode_api/を参照
+ * 	→ScannedRobotEventクラスに保存される
  */
 public class Main extends TeamRobot
 {
 	public final String RobotName = "TeamFujiwara";
 
+	// 敵ロボットの名前
+	public static final String Enemy1Name = "Leader";
+	public static final String Enemy2Name = "Sub1";
+	public static final String Enemy3Name = "Sub2";
+
 	// それぞれ的とWallsの数
 	private int NumOfEnemiesAlive = 3;
 	private int NumOfWallsAlive = 3;
 
-	// 狙い撃ちするターゲット
-	public Enemy Target;
 
 
 	/**
@@ -24,7 +28,8 @@ public class Main extends TeamRobot
 	 */
 	public void run() {
 
-		// まずここにロボットの初期化を書く(担当: 松田)
+		// まずロボットの初期化
+		initializeRobot();
 
 		//色を設定
 		setColors(Color.red,Color.blue,Color.green); // body,gun,radar
@@ -43,7 +48,7 @@ public class Main extends TeamRobot
 	 * ロボットの情報を初期化する(担当: 松田)
 	 */
 	private void initializeRobot() {
-		// 例(敵の数とWallsの数をそれぞれクラスの変数に入れる
+		// 例... 敵の数とWallsの数をそれぞれクラスの変数に入れる
 		NumOfEnemiesAlive = countNumbOfEnemiesAilve();
 		NumOfWallsAlive = countNumOfWallsAlive();
 
@@ -51,19 +56,17 @@ public class Main extends TeamRobot
 
 	/**
 	 * スキャンした敵が味方か相手かWallsかを判別する(担当 上田,山下)
-	 * @param r スキャンしたロボット
 	 * @return 1 味方, 2 相手, 3 Walls
 	 */
-	private int identifyEnemy(Robot r){
+	private int identifyEnemy(ScannedRobotEvent e){
 		return 0;
 	}
 
 	/**
 	 * 敵の動きが直線運動か円運動か停止しているかを判別する(担当 藤原)
-	 * @param r 判別するロボット
 	 * @return 1:直線運動, 2: 円運動, 3: 停止
 	 */
-	public static int analyzeMoveType(Robot r){
+	public static int analyzeMoveType(ScannedRobotEvent e){
 
 		return 0;
 	}
@@ -86,10 +89,9 @@ public class Main extends TeamRobot
 
 	/**
 	 * ロボットと自分との距離を測る(担当: 上田、山下)
-	 * @param r 相手ロボット
 	 * @return 距離
 	 */
-	private int measureDistanceOfEnemy(Robot r){
+	private int measureDistanceOfEnemy(ScannedRobotEvent e){
 		return 0;
 	}
 
@@ -101,6 +103,7 @@ public class Main extends TeamRobot
 	 */
 	public void onScannedRobot(ScannedRobotEvent e) {
 		// Replace the next line with any behavior you would like
+		analyzeMoveType(e);
 		fire(1);
 	}
 
