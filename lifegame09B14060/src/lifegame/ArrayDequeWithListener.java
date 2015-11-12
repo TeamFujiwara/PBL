@@ -8,7 +8,7 @@ import java.util.ArrayList;
  * 更新通知を送信する機能を付け加えたArrayDeque
  */
 public class ArrayDequeWithListener<E> extends ArrayDeque<E> {
-	ArrayList<DequeListener> stackListener = new ArrayList<>();
+	ArrayList<DequeListener> stackListener = new ArrayList<DequeListener>();
 
 	/**
 	 * スタックの更新を通知する
