@@ -71,7 +71,9 @@ public class Main extends TeamRobot
 	 * @return 1:直線運動, 2: 円運動, 3: 停止
 	 */
 	public static int analyzeMoveType(ScannedRobotEvent e){
-
+		
+		
+		
 		return 0;
 	}
 
@@ -107,8 +109,11 @@ public class Main extends TeamRobot
 	 */
 	public void onScannedRobot(ScannedRobotEvent e) {
 		// Replace the next line with any behavior you would like
+		double kakudo;
+		kakudo = getHeading()+e.getBearing()-getGunHeading();
+		turnGunRight(kakudo);
 		analyzeMoveType(e);
-		fire(1);
+		fire(3);
 	}
 
 	/**
