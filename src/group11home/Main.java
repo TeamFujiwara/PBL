@@ -59,7 +59,7 @@ public class Main extends TeamRobot
 	 * @return 1 味方, 2 相手, 3 Walls
 	 */
 	private int identifyEnemy(ScannedRobotEvent e){
-		if(getName(e) == Walls (1) && getName(e) == Walls (2) && getName(e) == Walls (3)){
+		if(e.getName() == "Walls (1)" && e.getName() == "Walls (2)" && e.getName() == "Walls (3)"){
 			return 3;
 		}
 		//else if(get)
@@ -71,9 +71,9 @@ public class Main extends TeamRobot
 	 * @return 1:直線運動, 2: 円運動, 3: 停止
 	 */
 	public static int analyzeMoveType(ScannedRobotEvent e){
-		
-		
-		
+
+
+
 		return 0;
 	}
 
