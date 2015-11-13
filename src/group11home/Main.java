@@ -101,6 +101,7 @@ public class Main extends TeamRobot
 	/**
 	 * onScannedRobot: 敵を察知したときの動作
 	 */
+	@Override
 	public void onScannedRobot(ScannedRobotEvent e) {
 		// Replace the next line with any behavior you would like
 		analyzeMoveType(e);
