@@ -1,4 +1,4 @@
-package group11home;
+﻿package group11home;
 import robocode.*;
 import java.awt.Color;
 
@@ -24,7 +24,7 @@ public class Main extends TeamRobot
 
 
 	/**
-	 * run: ロボットの全体動作をここに記入(担当: 広田)
+	 *  run: ロボットの全体動作をここに記入(担当: 広田)
 	 */
 	public void run() {
 
@@ -45,7 +45,7 @@ public class Main extends TeamRobot
 	}
 
 	/**
-	 * ロボットの情報を初期化する(担当: 松田)
+	 * ロボットの情報を初期化する(担当:a 松田)
 	 */
 	private void initializeRobot() {
 		// 例... 敵の数とWallsの数をそれぞれクラスの変数に入れる
