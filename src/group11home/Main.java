@@ -1,62 +1,81 @@
-ï»¿package group11home;
+package group11home;
 import robocode.*;
 import java.awt.Color;
+import java.awt.geom.*;
+import java.util.*;
 
 
 /**
- * ãƒ­ãƒœãƒƒãƒˆæœ¬ä½“ã®ã‚½ãƒ¼ã‚¹ã‚³ãƒ¼ãƒ‰
- * ãƒ¬ãƒ¼ãƒ€ãƒ¼ã‹ã‚‰ã‚ã‹ã‚‹æ•µã®æƒ…å ±ã¯http://www.solar-system.tuis.ac.jp/Java/robocode_api/ã‚’å‚ç…§
- * 	â†’ScannedRobotEventã‚¯ãƒ©ã‚¹ã«ä¿å­˜ã•ã‚Œã‚‹
+ * ƒƒ{ƒbƒg–{‘Ì‚Ìƒ\[ƒXƒR[ƒh
+ * ƒŒ[ƒ_[‚©‚ç‚í‚©‚é“G‚Ìî•ñ‚Íhttp://www.solar-system.tuis.ac.jp/Java/robocode_api/‚ğQÆ
+ * 	¨ScannedRobotEventƒNƒ‰ƒX‚É•Û‘¶‚³‚ê‚é
  */
 public class Main extends TeamRobot
 {
 	public final String RobotName = "TeamFujiwara";
 
-	// æ•µãƒ­ãƒœãƒƒãƒˆã®åå‰
+	// “Gƒƒ{ƒbƒg‚Ì–¼‘O
 	public static final String Enemy1Name = "Leader";
 	public static final String Enemy2Name = "Sub1";
 	public static final String Enemy3Name = "Sub2";
 
-	// ãã‚Œãã‚Œçš„ã¨Wallsã®æ•°
+	// ‚»‚ê‚¼‚ê“I‚ÆWalls‚Ì”
 	private int NumOfEnemiesAlive = 3;
 	private int NumOfWallsAlive = 3;
 
+	//•W“I‚Ìî•ñ
+	private String target;
+	private int LiveTarget; //ƒ^[ƒQƒbƒg‚ªİ’è‚³‚ê‚Ä‚¢‚é‚©‚Ç‚¤‚© 0:NO 1:YES
+	private double InfoOfTarget[];//[0]:ƒ^[ƒQƒbƒg‚ÌxÀ•W,[1]:ƒ^[ƒQƒbƒg‚ÌyÀ•W:[2]:ƒ^[ƒQƒbƒg‚Ì‘Š‘Î“I‚ÈŠp“x,[3]:ƒ^[ƒQƒbƒg‚ÌŒü‚¢‚Ä‚¢‚éŒü‚«,[4]:ƒ^[ƒQƒbƒg‚Ì‘¬“x
+	private ArrayList<double[]>  InfoHistory;
 
-
+	final double PI = Math.PI;
 	/**
-	 *  run: ãƒ­ãƒœãƒƒãƒˆã®å…¨ä½“å‹•ä½œã‚’ã“ã“ã«è¨˜å…¥(æ‹…å½“: åºƒç”°)
+	 *  run: ƒƒ{ƒbƒg‚Ì‘S‘Ì“®ì‚ğ‚±‚±‚É‹L“ü(’S“–: L“c)
 	 */
 	public void run() {
 
-		// ã¾ãšãƒ­ãƒœãƒƒãƒˆã®åˆæœŸåŒ–
+		// ‚Ü‚¸ƒƒ{ƒbƒg‚Ì‰Šú‰»
 		initializeRobot();
 
-		//è‰²ã‚’è¨­å®š
+		//F‚ğİ’è
 		setColors(Color.red,Color.blue,Color.green); // body,gun,radar
 
-		// ãƒ­ãƒœãƒƒãƒˆã®ãƒ¡ã‚¤ãƒ³ãƒ«ãƒ¼ãƒ—
+		//ƒŒ[ƒ_[‚â–C‘ä‚ğ‹@‘Ì‚Æ“Æ—§‚³‚¹‚é
+		setAdjustGunForRobotTurn(true);
+		setAdjustRadarForGunTurn(true);
+		turnRadarRightRadians(2*PI);	
+
+		// ƒƒ{ƒbƒg‚ÌƒƒCƒ“ƒ‹[ƒv
 		while(true) {
-			// ä¸‹4è¡Œã¯ã‚µãƒ³ãƒ—ãƒ«
-			ahead(100);
-			turnGunRight(360);
-			back(100);
-			turnGunRight(360);
+
+
+			//ƒŒ[ƒ_[‰ñ“]‚Ì—\–ñ
+			setTurnRadarLeftRadians(2*PI);
+			
+			//—\–ñ‚³‚ê‚½“®‚«‚ÌÀs
+			execute();
+			
 		}
 	}
 
 	/**
-	 * ãƒ­ãƒœãƒƒãƒˆã®æƒ…å ±ã‚’åˆæœŸåŒ–ã™ã‚‹(æ‹…å½“:a æ¾ç”°)
+	 * ƒƒ{ƒbƒg‚Ìî•ñ‚ğ‰Šú‰»‚·‚é(’S“–:a ¼“c)
 	 */
 	private void initializeRobot() {
-		// ä¾‹... æ•µã®æ•°ã¨Wallsã®æ•°ã‚’ãã‚Œãã‚Œã‚¯ãƒ©ã‚¹ã®å¤‰æ•°ã«å…¥ã‚Œã‚‹
+		// —á... “G‚Ì”‚ÆWalls‚Ì”‚ğ‚»‚ê‚¼‚êƒNƒ‰ƒX‚Ì•Ï”‚É“ü‚ê‚é
 		NumOfEnemiesAlive = countNumbOfEnemiesAilve();
 		NumOfWallsAlive = countNumOfWallsAlive();
+
+		//•W“I‚Ìî•ñ‚ğ“ü‚ê‚éƒŠƒXƒgì¬(“¡Œ´‚ª’Ç‰Á)
+		InfoHistory = new ArrayList<double[]>();
+		LiveTarget = 0;
 
 	}
 
 	/**
-	 * ã‚¹ã‚­ãƒ£ãƒ³ã—ãŸæ•µãŒå‘³æ–¹ã‹ç›¸æ‰‹ã‹Wallsã‹ã‚’åˆ¤åˆ¥ã™ã‚‹(æ‹…å½“ ä¸Šç”°,å±±ä¸‹)
-	 * @return 1 å‘³æ–¹, 2 ç›¸æ‰‹, 3 Walls
+	 * ƒXƒLƒƒƒ“‚µ‚½“G‚ª–¡•û‚©‘Šè‚©Walls‚©‚ğ”»•Ê‚·‚é(’S“– ã“c,R‰º)
+	 * @return 1 –¡•û, 2 ‘Šè, 3 Walls
 	 */
 	private int identifyEnemy(ScannedRobotEvent e){
 		if(e.getName() == "Walls (1)" && e.getName() == "Walls (2)" && e.getName() == "Walls (3)"){
@@ -67,8 +86,8 @@ public class Main extends TeamRobot
 	}
 
 	/**
-	 * æ•µã®å‹•ããŒç›´ç·šé‹å‹•ã‹å††é‹å‹•ã‹åœæ­¢ã—ã¦ã„ã‚‹ã‹ã‚’åˆ¤åˆ¥ã™ã‚‹(æ‹…å½“ è—¤åŸ)
-	 * @return 1:ç›´ç·šé‹å‹•, 2: å††é‹å‹•, 3: åœæ­¢
+	 * “G‚Ì“®‚«‚ª’¼ü‰^“®‚©‰~‰^“®‚©’â~‚µ‚Ä‚¢‚é‚©‚ğ”»•Ê‚·‚é(’S“– “¡Œ´)
+	 * @return 1:’¼ü‰^“®, 2: ‰~‰^“®, 3: ’â~
 	 */
 	public static int analyzeMoveType(ScannedRobotEvent e){
 
@@ -78,24 +97,24 @@ public class Main extends TeamRobot
 	}
 
 	/**
-	 * ç”Ÿãã¦ã„ã‚‹æ•µã®æ•°ã‚’ã‚«ã‚¦ãƒ³ãƒˆã™ã‚‹(æ‹…å½“: ä¸Šç”°ã€å±±ä¸‹)
-	 * @return ç”Ÿãã¦ã„ã‚‹æ•µã®æ•°
+	 * ¶‚«‚Ä‚¢‚é“G‚Ì”‚ğƒJƒEƒ“ƒg‚·‚é(’S“–: ã“cAR‰º)
+	 * @return ¶‚«‚Ä‚¢‚é“G‚Ì”
 	 */
 	public int countNumbOfEnemiesAilve() {
 		return 0;
 	}
 
 	/**
-	 * ç”Ÿãã¦ã„ã‚‹Wallsã®æ•°ã‚’ã‚«ã‚¦ãƒ³ãƒˆã™ã‚‹(æ‹…å½“: ä¸Šç”°ã€å±±ä¸‹)
-	 * @return ç”Ÿãã¦ã„ã‚‹Wallsã®æ•°
+	 * ¶‚«‚Ä‚¢‚éWalls‚Ì”‚ğƒJƒEƒ“ƒg‚·‚é(’S“–: ã“cAR‰º)
+	 * @return ¶‚«‚Ä‚¢‚éWalls‚Ì”
 	 */
 	public int countNumOfWallsAlive() {
 		return 0;
 	}
 
 	/**
-	 * ãƒ­ãƒœãƒƒãƒˆã¨è‡ªåˆ†ã¨ã®è·é›¢ã‚’æ¸¬ã‚‹(æ‹…å½“: ä¸Šç”°ã€å±±ä¸‹)
-	 * @return è·é›¢
+	 * ƒƒ{ƒbƒg‚Æ©•ª‚Æ‚Ì‹——£‚ğ‘ª‚é(’S“–: ã“cAR‰º)
+	 * @return ‹——£
 	 */
 	private int measureDistanceOfEnemy(ScannedRobotEvent e){
 		return 0;
@@ -105,20 +124,40 @@ public class Main extends TeamRobot
 
 
 	/**
-	 * onScannedRobot: æ•µã‚’å¯ŸçŸ¥ã—ãŸã¨ãã®å‹•ä½œ
+	 * onScannedRobot: “G‚ğ@’m‚µ‚½‚Æ‚«‚Ì“®ì
 	 */
 	@Override
 	public void onScannedRobot(ScannedRobotEvent e) {
-		// Replace the next line with any behavior you would like
-		double kakudo;
-		kakudo = getHeading()+e.getBearing()-getGunHeading();
-		turnGunRight(kakudo);
-		analyzeMoveType(e);
-		fire(3);
+		// ƒ^[ƒQƒbƒg‚Ìİ’è
+		if(LiveTarget == 0) {
+			target = e.getName();
+			LiveTarget = 1;
+		}
+
+		//ƒ^[ƒQƒbƒg‚Ìî•ñ‚ğ•Û‘¶
+		if (e.getName()==target){
+			
+			double bearing_rad = (getHeadingRadians()+e.getBearingRadians())%(2*PI);
+			
+			InfoOfTarget = new double[5];
+			InfoOfTarget[0] = getX()+Math.sin(bearing_rad)*e.getDistance();
+			InfoOfTarget[1] = getY()+Math.cos(bearing_rad)*e.getDistance();
+			InfoOfTarget[2] = e.getBearing();
+			InfoOfTarget[3] = e.getHeading();
+			InfoOfTarget[4] = e.getVelocity();
+			
+			InfoHistory.add(InfoOfTarget);
+		
+			
+		
+		}
+
+		
+		
 	}
 
 	/**
-	 * onHitByBullet: å¼¾ãŒè‡ªåˆ†ã«ã‚ãŸã£ãŸã¨ãã®å‹•ä½œã‚’æ›¸ã
+	 * onHitByBullet: ’e‚ª©•ª‚É‚ ‚½‚Á‚½‚Æ‚«‚Ì“®ì‚ğ‘‚­
 	 */
 	public void onHitByBullet(HitByBulletEvent e) {
 		// Replace the next line with any behavior you would like
@@ -126,10 +165,83 @@ public class Main extends TeamRobot
 	}
 
 	/**
-	 * onHitWall: å£ã«ã¶ã¤ã‹ã£ãŸã¨ãã®å‹•ä½œã‚’æŒ‡å®š(ã‚ã¨ã§)
+	 * onHitWall: •Ç‚É‚Ô‚Â‚©‚Á‚½‚Æ‚«‚Ì“®ì‚ğw’è(‚ ‚Æ‚Å)
 	 */
 	public void onHitWall(HitWallEvent e) {
 		// Replace the next line with any behavior you would like
 		back(20);
+	}
+
+
+	/*À•W(x,y)‚ÉŒü‚©‚¤‚æ‚¤‚És“®‚ğ—\–ñ‚·‚é*/
+	void goTo(double x, double y) {
+		double dist = 20; 
+		double angle = Math.toDegrees(absbearing(getX(),getY(),x,y));
+		double r = turnTo(angle);
+		setAhead(dist * r);
+	}	
+	
+	int turnTo(double angle) {
+		double ang;
+		int dir;
+		ang = normaliseBearing(getHeading() - angle);
+		if (ang > 90) {
+			ang -= 180;
+			dir = -1;
+		}
+		else if (ang < -90) {
+			ang += 180;
+			dir = -1;
+		}
+		else {
+			dir = 1;
+		}
+		setTurnLeft(ang);
+		return dir;
+	}
+	public double absbearing( double x1,double y1, double x2,double y2 ){
+		double xo = x2-x1;
+		double yo = y2-y1;
+		double h = getRange( x1,y1, x2,y2 );
+		if( xo > 0 && yo > 0 )
+		{
+			return Math.asin( xo / h );
+		}
+		if( xo > 0 && yo < 0 )
+		{
+			return Math.PI - Math.asin( xo / h );
+		}
+		if( xo < 0 && yo < 0 )
+		{
+			return Math.PI + Math.asin( -xo / h );
+		}
+		if( xo < 0 && yo > 0 )
+		{
+			return 2.0*Math.PI - Math.asin( -xo / h );
+		}
+		return 0;
+	}
+	double normaliseBearing(double ang) {
+		if (ang > PI)
+			ang -= 2*PI;
+		if (ang < -PI)
+			ang += 2*PI;
+		return ang;
+	}
+	
+	//if a heading is not within the 0 to 2pi range, alters it to provide the shortest angle
+	double normaliseHeading(double ang) {
+		if (ang > 2*PI)
+			ang -= 2*PI;
+		if (ang < 0)
+			ang += 2*PI;
+		return ang;
+	}	
+	public double getRange( double x1,double y1, double x2,double y2 )
+	{
+		double xo = x2-x1;
+		double yo = y2-y1;
+		double h = Math.sqrt( xo*xo + yo*yo );
+		return h;	
 	}
 }
