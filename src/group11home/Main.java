@@ -24,7 +24,7 @@ public class Main extends TeamRobot
 	private int NumOfWallsAlive = 3;
 
 	final double PI = Math.PI;
-	Hashtable targets;
+	Hashtable<String, Enemy> targets;
 	Enemy target;
 	int direction = 1;
 	double midpointstrength = 0;
@@ -95,6 +95,7 @@ public class Main extends TeamRobot
 
 	/**
 	 * 敵の動きが直線運動か円運動か停止しているかを判別する(担当 藤原)
+	 * とりあえず補充
 	 * @return 1:直線運動, 2: 円運動, 3: 停止
 	 */
 	public static int analyzeMoveType(ScannedRobotEvent e){
