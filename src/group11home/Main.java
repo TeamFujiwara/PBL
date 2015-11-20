@@ -1,4 +1,4 @@
-package group11home;
+ï»¿package group11home;
 import robocode.*;
 import java.awt.Color;
 import java.awt.geom.*;
@@ -6,20 +6,20 @@ import java.util.*;
 
 
 /**
- * ƒƒ{ƒbƒg–{‘Ì‚Ìƒ\[ƒXƒR[ƒh
- * ƒŒ[ƒ_[‚©‚ç‚í‚©‚é“G‚Ìî•ñ‚Íhttp://www.solar-system.tuis.ac.jp/Java/robocode_api/‚ğQÆ
- * 	¨ScannedRobotEventƒNƒ‰ƒX‚É•Û‘¶‚³‚ê‚é
+ * ãƒ­ãƒœãƒƒãƒˆæœ¬ä½“ã®ã‚½ãƒ¼ã‚¹ã‚³ãƒ¼ãƒ‰
+ * ãƒ¬ãƒ¼ãƒ€ãƒ¼ã‹ã‚‰ã‚ã‹ã‚‹æ•µã®æƒ…å ±ã¯http://www.solar-system.tuis.ac.jp/Java/robocode_api/ã‚’å‚ç…§
+ * 	â†’ScannedRobotEventã‚¯ãƒ©ã‚¹ã«ä¿å­˜ã•ã‚Œã‚‹
  */
 public class Main extends TeamRobot
 {
 	public final String RobotName = "TeamFujiwara";
 
-	// “Gƒƒ{ƒbƒg‚Ì–¼‘O
+	// æ•µãƒ­ãƒœãƒƒãƒˆã®åå‰
 	public static final String Enemy1Name = "Leader";
 	public static final String Enemy2Name = "Sub1";
 	public static final String Enemy3Name = "Sub2";
 
-	// ‚»‚ê‚¼‚ê“I‚ÆWalls‚Ì”
+	// ãã‚Œãã‚Œçš„ã¨Wallsã®æ•°
 	private int NumOfEnemiesAlive = 3;
 	private int NumOfWallsAlive = 3;
 
@@ -30,52 +30,52 @@ public class Main extends TeamRobot
 	double midpointstrength = 0;
 	int midpointcount = 0;
 	/**
-	 *  run: ƒƒ{ƒbƒg‚Ì‘S‘Ì“®ì‚ğ‚±‚±‚É‹L“ü(’S“–: L“c)
+	 *  run: ãƒ­ãƒœãƒƒãƒˆã®å…¨ä½“å‹•ä½œã‚’ã“ã“ã«è¨˜å…¥(æ‹…å½“: åºƒç”°)
 	 */
 	public void run() {
 
-		// ‚Ü‚¸ƒƒ{ƒbƒg‚Ì‰Šú‰»
+		// ã¾ãšãƒ­ãƒœãƒƒãƒˆã®åˆæœŸåŒ–
 		initializeRobot();
 
-		//F‚ğİ’è
+		//è‰²ã‚’è¨­å®š
 		setColors(Color.red,Color.blue,Color.green); // body,gun,radar
 
 		targets = new Hashtable();
 		target = new Enemy();
 		target.distance = 100000;
 
-		//ƒŒ[ƒ_[‚â–C‘ä‚ğ‹@‘Ì‚Æ“Æ—§‚³‚¹‚é
+		//ãƒ¬ãƒ¼ãƒ€ãƒ¼ã‚„ç ²å°ã‚’æ©Ÿä½“ã¨ç‹¬ç«‹ã•ã›ã‚‹
 		setAdjustGunForRobotTurn(true);
 		setAdjustRadarForGunTurn(true);
 		turnRadarRightRadians(2*PI);
 			
 
-		// ƒƒ{ƒbƒg‚ÌƒƒCƒ“ƒ‹[ƒv
+		// ãƒ­ãƒœãƒƒãƒˆã®ãƒ¡ã‚¤ãƒ³ãƒ«ãƒ¼ãƒ—
 		while(true) {
 			
 			antiGravMove();
-			//ƒŒ[ƒ_[‰ñ“]‚Ì—\–ñ
+			//ãƒ¬ãƒ¼ãƒ€ãƒ¼å›è»¢ã®äºˆç´„
 			setTurnRadarLeftRadians(2*PI);			
 
-			//—\–ñ‚³‚ê‚½“®‚«‚ÌÀs
+			//äºˆç´„ã•ã‚ŒãŸå‹•ãã®å®Ÿè¡Œ
 			execute();
 			
 		}
 	}
 
 	/**
-	 * ƒƒ{ƒbƒg‚Ìî•ñ‚ğ‰Šú‰»‚·‚é(’S“–:a ¼“c)
+	 * ãƒ­ãƒœãƒƒãƒˆã®æƒ…å ±ã‚’åˆæœŸåŒ–ã™ã‚‹(æ‹…å½“:a æ¾ç”°)
 	 */
 	private void initializeRobot() {
-		// —á... “G‚Ì”‚ÆWalls‚Ì”‚ğ‚»‚ê‚¼‚êƒNƒ‰ƒX‚Ì•Ï”‚É“ü‚ê‚é
+		// ä¾‹... æ•µã®æ•°ã¨Wallsã®æ•°ã‚’ãã‚Œãã‚Œã‚¯ãƒ©ã‚¹ã®å¤‰æ•°ã«å…¥ã‚Œã‚‹
 		NumOfEnemiesAlive = countNumbOfEnemiesAilve();
 		NumOfWallsAlive = countNumOfWallsAlive();
 
 	}
 
 	/**
-	 * ƒXƒLƒƒƒ“‚µ‚½“G‚ª–¡•û‚©‘Šè‚©Walls‚©‚ğ”»•Ê‚·‚é(’S“– ã“c,R‰º)
-	 * @return 1 –¡•û, 2 ‘Šè, 3 Walls
+	 * ã‚¹ã‚­ãƒ£ãƒ³ã—ãŸæ•µãŒå‘³æ–¹ã‹ç›¸æ‰‹ã‹Wallsã‹ã‚’åˆ¤åˆ¥ã™ã‚‹(æ‹…å½“ ä¸Šç”°,å±±ä¸‹)
+	 * @return 1 å‘³æ–¹, 2 ç›¸æ‰‹, 3 Walls
 	 */
 	private int identifyEnemy(ScannedRobotEvent e){
 		if(e.getName() == "Walls (1)" && e.getName() == "Walls (2)" && e.getName() == "Walls (3)"){
@@ -86,8 +86,8 @@ public class Main extends TeamRobot
 	}
 
 	/**
-	 * “G‚Ì“®‚«‚ª’¼ü‰^“®‚©‰~‰^“®‚©’â~‚µ‚Ä‚¢‚é‚©‚ğ”»•Ê‚·‚é(’S“– “¡Œ´)
-	 * @return 1:’¼ü‰^“®, 2: ‰~‰^“®, 3: ’â~
+	 * æ•µã®å‹•ããŒç›´ç·šé‹å‹•ã‹å††é‹å‹•ã‹åœæ­¢ã—ã¦ã„ã‚‹ã‹ã‚’åˆ¤åˆ¥ã™ã‚‹(æ‹…å½“ è—¤åŸ)
+	 * @return 1:ç›´ç·šé‹å‹•, 2: å††é‹å‹•, 3: åœæ­¢
 	 */
 	public static int analyzeMoveType(ScannedRobotEvent e){
 
@@ -97,31 +97,31 @@ public class Main extends TeamRobot
 	}
 
 	/**
-	 * ¶‚«‚Ä‚¢‚é“G‚Ì”‚ğƒJƒEƒ“ƒg‚·‚é(’S“–: ã“cAR‰º)
-	 * @return ¶‚«‚Ä‚¢‚é“G‚Ì”
+	 * ç”Ÿãã¦ã„ã‚‹æ•µã®æ•°ã‚’ã‚«ã‚¦ãƒ³ãƒˆã™ã‚‹(æ‹…å½“: ä¸Šç”°ã€å±±ä¸‹)
+	 * @return ç”Ÿãã¦ã„ã‚‹æ•µã®æ•°
 	 */
 	public int countNumbOfEnemiesAilve() {
 		return 0;
 	}
 
 	/**
-	 * ¶‚«‚Ä‚¢‚éWalls‚Ì”‚ğƒJƒEƒ“ƒg‚·‚é(’S“–: ã“cAR‰º)
-	 * @return ¶‚«‚Ä‚¢‚éWalls‚Ì”
+	 * ç”Ÿãã¦ã„ã‚‹Wallsã®æ•°ã‚’ã‚«ã‚¦ãƒ³ãƒˆã™ã‚‹(æ‹…å½“: ä¸Šç”°ã€å±±ä¸‹)
+	 * @return ç”Ÿãã¦ã„ã‚‹Wallsã®æ•°
 	 */
 	public int countNumOfWallsAlive() {
 		return 0;
 	}
 
 	/**
-	 * ƒƒ{ƒbƒg‚Æ©•ª‚Æ‚Ì‹——£‚ğ‘ª‚é(’S“–: ã“cAR‰º)
-	 * @return ‹——£
+	 * ãƒ­ãƒœãƒƒãƒˆã¨è‡ªåˆ†ã¨ã®è·é›¢ã‚’æ¸¬ã‚‹(æ‹…å½“: ä¸Šç”°ã€å±±ä¸‹)
+	 * @return è·é›¢
 	 */
 	private int measureDistanceOfEnemy(ScannedRobotEvent e){
 		return 0;
 	}
 
 	/**
-	 * onHitByBullet: ’e‚ª©•ª‚É‚ ‚½‚Á‚½‚Æ‚«‚Ì“®ì‚ğ‘‚­
+	 * onHitByBullet: å¼¾ãŒè‡ªåˆ†ã«ã‚ãŸã£ãŸã¨ãã®å‹•ä½œã‚’æ›¸ã
 	 */
 	public void onHitByBullet(HitByBulletEvent e) {
 		// Replace the next line with any behavior you would like
@@ -129,14 +129,14 @@ public class Main extends TeamRobot
 	}
 
 	/**
-	 * onHitWall: •Ç‚É‚Ô‚Â‚©‚Á‚½‚Æ‚«‚Ì“®ì‚ğw’è(‚ ‚Æ‚Å)
+	 * onHitWall: å£ã«ã¶ã¤ã‹ã£ãŸã¨ãã®å‹•ä½œã‚’æŒ‡å®š(ã‚ã¨ã§)
 	 */
 	public void onHitWall(HitWallEvent e) {
 		// Replace the next line with any behavior you would like
 		back(20);
 	}
 
-	/*”½d—ÍˆÚ“®(—vŠg’£) Ql:https://www.ibm.com/developerworks/jp/java/library/j-antigrav/*/
+	/*åé‡åŠ›ç§»å‹•(è¦æ‹¡å¼µ) å‚è€ƒ:https://www.ibm.com/developerworks/jp/java/library/j-antigrav/*/
 	void antiGravMove() {
    		double xforce = 0;
 		double yforce = 0;
@@ -185,7 +185,7 @@ public class Main extends TeamRobot
 	}
 
 
-	/*À•W(x,y)‚ÉŒü‚©‚¤‚æ‚¤‚És“®‚ğ—\–ñ‚·‚é*/
+	/*åº§æ¨™(x,y)ã«å‘ã‹ã†ã‚ˆã†ã«è¡Œå‹•ã‚’äºˆç´„ã™ã‚‹*/
 	void goTo(double x, double y) {
 		double dist = 20; 
 		double angle = Math.toDegrees(absbearing(getX(),getY(),x,y));
@@ -257,7 +257,7 @@ public class Main extends TeamRobot
 		return h;	
 	}
 	/**
-	 * onScannedRobot: “G‚ğ@’m‚µ‚½‚Æ‚«‚Ì“®ì
+	 * onScannedRobot: æ•µã‚’å¯ŸçŸ¥ã—ãŸã¨ãã®å‹•ä½œ
 	 */
 	@Override
 	public void onScannedRobot(ScannedRobotEvent e) {
@@ -268,15 +268,15 @@ public class Main extends TeamRobot
 			en = new Enemy();
 			targets.put(e.getName(),en);
 		}
-		//“Gƒƒ{ƒbƒg‚ª‹‚éŠp“x‚ÌŒvZ
+		//æ•µãƒ­ãƒœãƒƒãƒˆãŒå±…ã‚‹è§’åº¦ã®è¨ˆç®—
 		double absbearing_rad = (getHeadingRadians()+e.getBearingRadians())%(2*PI);
-		//ƒXƒLƒƒƒ“‚µ‚½“Gƒƒ{ƒbƒg‚Ìî•ñ‚ğ•Û‘¶
+		//ã‚¹ã‚­ãƒ£ãƒ³ã—ãŸæ•µãƒ­ãƒœãƒƒãƒˆã®æƒ…å ±ã‚’ä¿å­˜
 		en.name = e.getName();
 		double h = normaliseBearing(e.getHeadingRadians() - en.heading);
 		h = h/(getTime() - en.ctime);
 		en.changehead = h;
-		en.x = getX()+Math.sin(absbearing_rad)*e.getDistance(); //“Gƒƒ{ƒbƒg‚ÌxÀ•W
-		en.y = getY()+Math.cos(absbearing_rad)*e.getDistance(); //yÀ•W
+		en.x = getX()+Math.sin(absbearing_rad)*e.getDistance(); //æ•µãƒ­ãƒœãƒƒãƒˆã®xåº§æ¨™
+		en.y = getY()+Math.cos(absbearing_rad)*e.getDistance(); //yåº§æ¨™
 		en.bearing = e.getBearingRadians();
 		en.heading = e.getHeadingRadians();
 		en.ctime = getTime();				//game time at which this scan was produced
