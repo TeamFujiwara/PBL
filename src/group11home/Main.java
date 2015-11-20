@@ -76,7 +76,7 @@ public class Main extends TeamRobot
 	}
 
 	/**
-	 * スキャンした敵が味方か相手かWallsかを判別する(担当 上田,山下)
+	 * スキャンした敵が味方か相手かWallsかを判別する(担当 ,山下)
 	 * @return 1 味方, 2 相手, 3 Walls
 	 */
 	private int identifyEnemy(ScannedRobotEvent e){
@@ -127,7 +127,7 @@ public class Main extends TeamRobot
 	 * @return 距離
 	 */
 	private int measureDistanceOfEnemy(ScannedRobotEvent e){
-		return 0;
+		return e.getDistance();
 	}
 
 	/**
