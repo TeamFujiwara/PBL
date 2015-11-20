@@ -78,11 +78,13 @@ public class Main extends TeamRobot
 	 * @return 1 味方, 2 相手, 3 Walls
 	 */
 	private int identifyEnemy(ScannedRobotEvent e){
-		if(e.getName() == "Walls (1)" && e.getName() == "Walls (2)" && e.getName() == "Walls (3)"){
+		if(e.getName() == "Walls (1)" || e.getName() == "Walls (2)" || e.getName() == "Walls (3)"){
 			return 3;
 		}
-		//else if(get)
-		return 0;
+		else if(e.getName() == "" || e.getName() == "" || e.getName() == ""){	//味方の名前を入れる
+			return 1;
+		}
+		else return 2;
 	}
 
 	/**
@@ -100,7 +102,7 @@ public class Main extends TeamRobot
 	 * 生きている敵の数をカウントする(担当: 上田、山下)
 	 * @return 生きている敵の数
 	 */
-	public int countNumbOfEnemiesAilve() {
+	public int countNumbOfEnemiesAlive() {
 		return 0;
 	}
 
