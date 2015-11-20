@@ -55,6 +55,14 @@ public class Main extends TeamRobot
 	}
 
 	/**
+	 * ターゲットにする敵の名前を決める 担当: 広田
+	 * @return ターゲットの敵の名前
+	 */
+	private String setTargetEnemy(){
+		return "";
+	}
+
+	/**
 	 * スキャンした敵が味方か相手かWallsかを判別する(担当 上田,山下)
 	 * @return 1 味方, 2 相手, 3 Walls
 	 */
