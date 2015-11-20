@@ -14,7 +14,7 @@ public class Main extends TeamRobot
 {
 	public final String RobotName = "TeamFujiwara";
 
-	// 敵ロボットの名前
+	// 敵ロボットの名前とか
 	public static final String Enemy1Name = "Leader";
 	public static final String Enemy2Name = "Sub1";
 	public static final String Enemy3Name = "Sub2";
