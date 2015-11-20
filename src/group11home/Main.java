@@ -29,11 +29,15 @@ public class Main extends TeamRobot
 	int direction = 1;
 	double midpointstrength = 0;
 	int midpointcount = 0;
+	int EnemyCounter = 3;
+	int WallsCounter = 3;
 	/**
 	 *  run: ロボットの全体動作をここに記入(担当: 広田)
 	 */
 	public void run() {
 
+		// まずロボットの初期化
+		initializeRobot();
 
 		//色を設定
 		setColors(Color.red,Color.blue,Color.green); // body,gun,radar
@@ -46,20 +50,18 @@ public class Main extends TeamRobot
 		setAdjustGunForRobotTurn(true);
 		setAdjustRadarForGunTurn(true);
 		turnRadarRightRadians(2*PI);
-
+			
 
 		// ロボットのメインループ
 		while(true) {
-
-		// まずロボットの初期化
-		initializeRobot();
+			
 			antiGravMove();
 			//レーダー回転の予約
-			setTurnRadarLeftRadians(2*PI);
+			setTurnRadarLeftRadians(2*PI);			
 
 			//予約された動きの実行
 			execute();
-
+			
 		}
 	}
 
@@ -74,23 +76,17 @@ public class Main extends TeamRobot
 	}
 
 	/**
-	 * ターゲットにする敵の名前を決める 担当: 広田
-	 * @return ターゲットの敵の名前
-	 */
-	private String setTargetEnemy(){
-		return "";
-	}
-
-	/**
 	 * スキャンした敵が味方か相手かWallsかを判別する(担当 上田,山下)
 	 * @return 1 味方, 2 相手, 3 Walls
 	 */
 	private int identifyEnemy(ScannedRobotEvent e){
-		if(e.getName() == "Walls (1)" && e.getName() == "Walls (2)" && e.getName() == "Walls (3)"){
+		if(e.getName() == "Walls (1)" || e.getName() == "Walls (2)" || e.getName() == "Walls (3)"){
 			return 3;
 		}
-		//else if(get)
-		return 0;
+		else if(e.getName() == "" || e.getName() == "" || e.getName() == ""){	//味方の名前を入れる
+			return 1;
+		}
+		else return 2;
 	}
 
 	/**
@@ -109,16 +105,22 @@ public class Main extends TeamRobot
 	 * 生きている敵の数をカウントする(担当: 上田、山下)
 	 * @return 生きている敵の数
 	 */
-	public int countNumbOfEnemiesAilve() {
-		return 0;
+	public int countNumbOfEnemiesAlive(RobotDeathEvent e) {
+		if(e.getName() == "" || e.getName() == "" || e.getName() == ""){	//敵の名前を入れる
+			EnemyCounter--;
+		}
+		return EnemyCounter;
 	}
 
 	/**
 	 * 生きているWallsの数をカウントする(担当: 上田、山下)
 	 * @return 生きているWallsの数
 	 */
-	public int countNumOfWallsAlive() {
-		return 0;
+	public int countNumOfWallsAlive(RobotDeathEvent e) {
+		if(e.getName() == "Walls (1)" || e.getName() == "Walls (2)" || e.getName() == "Walls (3)"){
+			WallsCounter--;
+		}
+		return WallsCounter;
 	}
 
 	/**
@@ -161,13 +163,13 @@ public class Main extends TeamRobot
 				p = new GravPoint(en.x,en.y, -1000);
 				force = p.power/Math.pow(getRange(getX(),getY(),p.x,p.y),2);
 				//Find the bearing from the point to us
-				ang = normaliseBearing(Math.PI/2 - Math.atan2(getY() - p.y, getX() - p.x));
+				ang = normaliseBearing(Math.PI/2 - Math.atan2(getY() - p.y, getX() - p.x)); 
 				//Add the components of this force to the total force in their respective directions
 				xforce += Math.sin(ang) * force;
 		        		yforce += Math.cos(ang) * force;
 			}
 	    }
-
+	    
 		/**The next section adds a middle point with a random (positive or negative) strength.
 		The strength changes every 5 turns, and goes between -1000 and 1000.  This gives a better
 		overall movement.**/
@@ -178,17 +180,17 @@ public class Main extends TeamRobot
 		}
 		p = new GravPoint(getBattleFieldWidth()/2, getBattleFieldHeight()/2, midpointstrength);
 		force = p.power/Math.pow(getRange(getX(),getY(),p.x,p.y),1.5);
-	  	ang = normaliseBearing(Math.PI/2 - Math.atan2(getY() - p.y, getX() - p.x));
+	  	ang = normaliseBearing(Math.PI/2 - Math.atan2(getY() - p.y, getX() - p.x)); 
 	    	xforce += Math.sin(ang) * force;
 	    	yforce += Math.cos(ang) * force;
-
-	    	/**The following four lines add wall avoidance.  They will only affect us if the bot is close
+	   
+	    	/**The following four lines add wall avoidance.  They will only affect us if the bot is close 
 	    to the walls due to the force from the walls decreasing at a power 3.**/
 	    	xforce += 5000/Math.pow(getRange(getX(), getY(), getBattleFieldWidth(), getY()), 3);
 	    	xforce -= 5000/Math.pow(getRange(getX(), getY(), 0, getY()), 3);
 	    	yforce += 5000/Math.pow(getRange(getX(), getY(), getX(), getBattleFieldHeight()), 3);
 	    	yforce -= 5000/Math.pow(getRange(getX(), getY(), getX(), 0), 3);
-
+	    
 	    	//Move in the direction of our resolved force.
 	    	goTo(getX()-xforce,getY()-yforce);
 	}
@@ -196,12 +198,12 @@ public class Main extends TeamRobot
 
 	/*座標(x,y)に向かうように行動を予約する*/
 	void goTo(double x, double y) {
-		double dist = 20;
+		double dist = 20; 
 		double angle = Math.toDegrees(absbearing(getX(),getY(),x,y));
 		double r = turnTo(angle);
 		setAhead(dist * r);
-	}
-
+	}	
+	
 	int turnTo(double angle) {
 		double ang;
 		int dir;
@@ -249,7 +251,7 @@ public class Main extends TeamRobot
 			ang += 2*PI;
 		return ang;
 	}
-
+	
 	//if a heading is not within the 0 to 2pi range, alters it to provide the shortest angle
 	double normaliseHeading(double ang) {
 		if (ang > 2*PI)
@@ -257,13 +259,13 @@ public class Main extends TeamRobot
 		if (ang < 0)
 			ang += 2*PI;
 		return ang;
-	}
+	}	
 	public double getRange( double x1,double y1, double x2,double y2 )
 	{
 		double xo = x2-x1;
 		double yo = y2-y1;
 		double h = Math.sqrt( xo*xo + yo*yo );
-		return h;
+		return h;	
 	}
 	/**
 	 * onScannedRobot: 敵を察知したときの動作
@@ -290,7 +292,7 @@ public class Main extends TeamRobot
 		en.heading = e.getHeadingRadians();
 		en.ctime = getTime();				//game time at which this scan was produced
 		en.speed = e.getVelocity();
-		en.distance = e.getDistance();
+		en.distance = e.getDistance();	
 		en.live = true;
 		if ((en.distance < target.distance)||(target.live == false)) {
 			target = en;
@@ -311,7 +313,7 @@ class Enemy {
 		double diff = when - ctime;
 		double newY = y + Math.cos(heading) * speed * diff;
 		double newX = x + Math.sin(heading) * speed * diff;
-
+		
 		return new Point2D.Double(newX, newY);
 	}
 }
