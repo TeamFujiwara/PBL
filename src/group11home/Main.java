@@ -1,9 +1,17 @@
-﻿package group11home;
-import robocode.*;
+﻿
+package group11home;
 import java.awt.Color;
 import java.awt.geom.*;
+import robocode.*;
 import java.util.*;
 
+/*
+ * ソースコードについて
+ * 文字コード... UTF-8
+ * 変数を新しく作るときは
+ * int direction;	//敵の向き
+ * みたいにコメントを付けておいてください
+ */
 
 /**
  * ロボット本体のソースコード
@@ -23,14 +31,16 @@ public class Main extends TeamRobot
 	private int NumOfEnemiesAlive = 3;
 	private int NumOfWallsAlive = 3;
 
-	final double PI = Math.PI;
-	Hashtable<String, Enemy> targets;
-	Enemy target;
+	final double PI = Math.PI;	//円周率
+
+	Hashtable<String, Enemy> targets;	//Enemyのハッシュテーブル
+	Enemy target;	//ターゲットにする的
 	int direction = 1;
+
 	double midpointstrength = 0;
 	int midpointcount = 0;
-	int EnemyCounter = 3;
-	int WallsCounter = 3;
+	int EnemyCounter = 3;	//敵の生きている数
+	int WallsCounter = 3;	//Wallsの生きている数
 	/**
 	 *  run: ロボットの全体動作をここに記入(担当: 広田)
 	 */
@@ -92,7 +102,7 @@ public class Main extends TeamRobot
 
 	/**
 	 * 敵の動きが直線運動か円運動か停止しているかを判別する(担当 藤原)
-	 * とりあえず補充
+	 * とりあえず放置
 	 * @return 1:直線運動, 2: 円運動, 3: 停止
 	 */
 	public static int analyzeMoveType(ScannedRobotEvent e){
@@ -129,37 +139,35 @@ public class Main extends TeamRobot
 	 * @return 距離
 	 */
 	private int measureDistanceOfEnemy(ScannedRobotEvent e){
-		return e.getDistance();
+		return (int)e.getDistance();
 	}
 
 	/**
 	 * onHitByBullet: 弾が自分にあたったときの動作を書く
 	 */
 	public void onHitByBullet(HitByBulletEvent e) {
-		// Replace the next line with any behavior you would like
 		back(10);
 	}
 
 	/**
-	 * onHitWall: 壁にぶつかったときの動作を指定(あとで)
+	 * onHitWall: 壁にぶつかったときの動作
 	 */
 	public void onHitWall(HitWallEvent e) {
-		// Replace the next line with any behavior you would like
 		back(20);
 	}
 
 	/*反重力移動(要拡張) 参考:https://www.ibm.com/developerworks/jp/java/library/j-antigrav/*/
 	void antiGravMove() {
-   		double xforce = 0;
+		double xforce = 0;
 		double yforce = 0;
 		double force;
 		double ang;
 		GravPoint p;
 		Enemy en;
-    		Enumeration e = targets.elements();
+		Enumeration e = targets.elements();
 		//cycle through all the enemies.  If they are alive, they are repulsive.  Calculate the force on us
 		while (e.hasMoreElements()) {
-    			en = (Enemy)e.nextElement();
+			en = (Enemy)e.nextElement();
 			if (en.live) {
 				p = new GravPoint(en.x,en.y, -1000);
 				force = p.power/Math.pow(getRange(getX(),getY(),p.x,p.y),2);
@@ -167,9 +175,9 @@ public class Main extends TeamRobot
 				ang = normaliseBearing(Math.PI/2 - Math.atan2(getY() - p.y, getX() - p.x));
 				//Add the components of this force to the total force in their respective directions
 				xforce += Math.sin(ang) * force;
-		        		yforce += Math.cos(ang) * force;
+				yforce += Math.cos(ang) * force;
 			}
-	    }
+		}
 
 		/**The next section adds a middle point with a random (positive or negative) strength.
 		The strength changes every 5 turns, and goes between -1000 and 1000.  This gives a better
@@ -181,19 +189,19 @@ public class Main extends TeamRobot
 		}
 		p = new GravPoint(getBattleFieldWidth()/2, getBattleFieldHeight()/2, midpointstrength);
 		force = p.power/Math.pow(getRange(getX(),getY(),p.x,p.y),1.5);
-	  	ang = normaliseBearing(Math.PI/2 - Math.atan2(getY() - p.y, getX() - p.x));
-	    	xforce += Math.sin(ang) * force;
-	    	yforce += Math.cos(ang) * force;
+		ang = normaliseBearing(Math.PI/2 - Math.atan2(getY() - p.y, getX() - p.x));
+		xforce += Math.sin(ang) * force;
+		yforce += Math.cos(ang) * force;
 
-	    	/**The following four lines add wall avoidance.  They will only affect us if the bot is close
+		/**The following four lines add wall avoidance.  They will only affect us if the bot is close
 	    to the walls due to the force from the walls decreasing at a power 3.**/
-	    	xforce += 5000/Math.pow(getRange(getX(), getY(), getBattleFieldWidth(), getY()), 3);
-	    	xforce -= 5000/Math.pow(getRange(getX(), getY(), 0, getY()), 3);
-	    	yforce += 5000/Math.pow(getRange(getX(), getY(), getX(), getBattleFieldHeight()), 3);
-	    	yforce -= 5000/Math.pow(getRange(getX(), getY(), getX(), 0), 3);
+		xforce += 5000/Math.pow(getRange(getX(), getY(), getBattleFieldWidth(), getY()), 3);
+		xforce -= 5000/Math.pow(getRange(getX(), getY(), 0, getY()), 3);
+		yforce += 5000/Math.pow(getRange(getX(), getY(), getX(), getBattleFieldHeight()), 3);
+		yforce -= 5000/Math.pow(getRange(getX(), getY(), getX(), 0), 3);
 
-	    	//Move in the direction of our resolved force.
-	    	goTo(getX()-xforce,getY()-yforce);
+		//Move in the direction of our resolved force.
+		goTo(getX()-xforce,getY()-yforce);
 	}
 
 
@@ -301,10 +309,16 @@ public class Main extends TeamRobot
 	}
 }
 
+/**
+ * 敵に関する情報をここに入れる
+ *
+ */
 class Enemy {
 	/*
 	 * ok, we should really be using accessors and mutators here,
 	 * (i.e getName() and setName()) but life's too short.
+	 * ↑日本語訳(広田)
+	 * getNameとかsetNameみたいなメソッドを作ったほうがいいんかもしれんけど、時間もったいないしやってない
 	 */
 	String name;
 	public double bearing,heading,speed,x,y,distance,changehead;
@@ -319,12 +333,15 @@ class Enemy {
 	}
 }
 
-/**Holds the x, y, and strength info of a gravity point**/
+/**
+ * 重力点(この点に引きこまれて行ったり離れていったりという動作に用いる)
+ *	(座標はint型で表すからxとかyもdoubleじゃなくてintのほうがよくない？) 広田
+ */
 class GravPoint {
-    public double x,y,power;
-    public GravPoint(double pX,double pY,double pPower) {
-        x = pX;
-        y = pY;
-        power = pPower;
-    }
+	public double x,y,power;
+	public GravPoint(double pX,double pY,double pPower) {
+		x = pX;
+		y = pY;
+		power = pPower;
+	}
 }
