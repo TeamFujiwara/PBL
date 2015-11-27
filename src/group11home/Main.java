@@ -148,6 +148,21 @@ public class Main extends TeamRobot
 		return (int)e.getDistance();
 	}
 
+	/*
+	 * 敵を見つけると敵の動きに合わせてレーダーを合わせる
+	 */
+	private void chaseenemywithradar(ScannedRobotEvent e){
+		double enemydegree; //自分自身を基準とした敵のいる相対角度
+		enemydegree = e.getBearing();
+		while(e.getEnegy() == 0){
+			if(enemydegree < e.getBearing()){
+				turnRadarRight(e.getBearing()-enemydegree);
+			}else if(enemydegree > e.getBearing()){
+				turnRaderLeft(enemydegree-e.getBearing());
+			}
+		}
+	}
+
 	/**
 	 * onHitByBullet: 弾が自分にあたったときの動作を書く
 	 */
