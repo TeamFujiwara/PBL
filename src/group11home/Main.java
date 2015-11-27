@@ -11,7 +11,14 @@ import java.util.*;
  * 変数を新しく作るときは
  * int direction;	//敵の向き
  * みたいにコメントを付けておいてください
+ *
+ * 11/27追記
+ * 途中になってる部分は //TODO コメント
+ * っていうコメントをつけていおいてください
+ * 例 ↓
  */
+
+//TODO: 別々の人が作ってる関数内で共有できる変数がいくつかあるので統合する
 
 /**
  * ロボット本体のソースコード
@@ -49,12 +56,12 @@ public class Main extends TeamRobot
 		// まずロボットの初期化
 		initializeRobot();
 
-		//色を設定
+		//色を設定(あんま関係ない)
 		setColors(Color.red,Color.blue,Color.green); // body,gun,radar
 
-		targets = new Hashtable();
-		target = new Enemy();
-		target.distance = 100000;
+		targets = new Hashtable();	//敵一覧
+		target = new Enemy();	//ターゲットにする敵
+		target.distance = 100000;	//ターゲットとの距離をとりあえず初期化
 
 		//レーダーや砲台を機体と独立させる
 		setAdjustGunForRobotTurn(true);
@@ -65,6 +72,7 @@ public class Main extends TeamRobot
 		// ロボットのメインループ
 		while(true) {
 
+			//	反重力運動をする
 			antiGravMove();
 			//レーダー回転の予約
 			setTurnRadarLeftRadians(2*PI);
@@ -156,22 +164,26 @@ public class Main extends TeamRobot
 		back(20);
 	}
 
-	/*反重力移動(要拡張) 参考:https://www.ibm.com/developerworks/jp/java/library/j-antigrav/*/
+	/*反重力移動(要拡張)
+	 * 参考:https://www.ibm.com/developerworks/jp/java/library/j-antigrav/*/
 	void antiGravMove() {
+		// xforceとyforceはそれぞれ敵の位置から計算して導出。forceが大きいほどその方向に押される
 		double xforce = 0;
 		double yforce = 0;
 		double force;
 		double ang;
 		GravPoint p;
 		Enemy en;
-		Enumeration e = targets.elements();
+		Enumeration e = targets.elements();	//敵リスト
 		//cycle through all the enemies.  If they are alive, they are repulsive.  Calculate the force on us
+		//↑敵の位置を重力点にする(そこから避けるようにする)
 		while (e.hasMoreElements()) {
 			en = (Enemy)e.nextElement();
 			if (en.live) {
-				p = new GravPoint(en.x,en.y, -1000);
+				p = new GravPoint(en.x,en.y, -1000);	//-1000は重力(負なので斥力が働く)
 				force = p.power/Math.pow(getRange(getX(),getY(),p.x,p.y),2);
 				//Find the bearing from the point to us
+				//自分から見た敵の相対角度を計算
 				ang = normaliseBearing(Math.PI/2 - Math.atan2(getY() - p.y, getX() - p.x));
 				//Add the components of this force to the total force in their respective directions
 				xforce += Math.sin(ang) * force;
@@ -182,6 +194,8 @@ public class Main extends TeamRobot
 		/**The next section adds a middle point with a random (positive or negative) strength.
 		The strength changes every 5 turns, and goes between -1000 and 1000.  This gives a better
 		overall movement.**/
+
+		//TODO midpointって何?
 		midpointcount++;
 		if (midpointcount > 5) {
 			midpointcount = 0;
@@ -284,6 +298,8 @@ public class Main extends TeamRobot
 		Enemy en;
 		if (targets.containsKey(e.getName())) {
 			en = (Enemy)targets.get(e.getName());
+			// 敵がWallsかどうかチェック
+			en.isEnemy = identifyEnemy(e);
 		} else {
 			en = new Enemy();
 			targets.put(e.getName(),en);
@@ -324,6 +340,7 @@ class Enemy {
 	public double bearing,heading,speed,x,y,distance,changehead;
 	public long ctime; 		//game time that the scan was produced
 	public boolean live; 	//is the enemy alive?
+	pubilc boolean isEnemy = true;	//wallsならfalseにする
 	public Point2D.Double guessPosition(long when) {
 		double diff = when - ctime;
 		double newY = y + Math.cos(heading) * speed * diff;
