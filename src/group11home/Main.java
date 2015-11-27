@@ -99,13 +99,11 @@ public class Main extends TeamRobot
 	 * @return 1 味方, 2 相手, 3 Walls
 	 */
 	private int identifyEnemy(ScannedRobotEvent e){
-		if(e.getName() == "Walls (1)" || e.getName() == "Walls (2)" || e.getName() == "Walls (3)"){
-			return 3;
-		}
-		else if(e.getName() == "" || e.getName() == "" || e.getName() == ""){	//味方の名前を入れる
-			return 1;
-		}
+	
+		if(e.name.matches("group12.*")) return 1;
+		else if(e.name.matches(".*Walls.*")==true) return 3;
 		else return 2;
+
 	}
 
 	/**
@@ -139,8 +137,12 @@ public class Main extends TeamRobot
 		if(e.getName() == "Walls (1)" || e.getName() == "Walls (2)" || e.getName() == "Walls (3)"){
 			WallsCounter--;
 		}
+		/*if(e.name.matches("group01.*")) return 1;
+		else if(e.name.matches(".*Walls.*")==true) return 2;
+*/
 		return WallsCounter;
 	}
+
 
 	/**
 	 * ロボットと自分との距離を測る(担当: 上田、山下)
@@ -283,6 +285,7 @@ public class Main extends TeamRobot
 			ang += 2*PI;
 		return ang;
 	}
+
 	public double getRange( double x1,double y1, double x2,double y2 )
 	{
 		double xo = x2-x1;
@@ -340,7 +343,7 @@ class Enemy {
 	public double bearing,heading,speed,x,y,distance,changehead;
 	public long ctime; 		//game time that the scan was produced
 	public boolean live; 	//is the enemy alive?
-	pubilc boolean isEnemy = true;	//wallsならfalseにする
+	public boolean isEnemy = true;	//wallsならfalseにする
 	public Point2D.Double guessPosition(long when) {
 		double diff = when - ctime;
 		double newY = y + Math.cos(heading) * speed * diff;
