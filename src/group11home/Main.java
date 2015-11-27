@@ -16,7 +16,7 @@ import java.util.*;
 /**
  * ロボット本体のソースコード
  * レーダーからわかる敵の情報はhttp://www.solar-system.tuis.ac.jp/Java/robocode_api/を参照
- * 	→ScannedRobotEventクラスに保存される
+ * 	→ScannedRobotEventクラスに保存されるa
  */
 public class Main extends TeamRobot
 {
