@@ -97,13 +97,10 @@ public class Main extends TeamRobot
 	 * @return 1 味方, 2 相手, 3 Walls
 	 */
 	private int identifyEnemy(ScannedRobotEvent e){
-		if(e.getName() == "Walls (1)" || e.getName() == "Walls (2)" || e.getName() == "Walls (3)"){
-			return 3;
-		}
-		else if(e.getName() == "" || e.getName() == "" || e.getName() == ""){	//味方の名前を入れる
-			return 1;
-		}
+		if(name.matches("group12.*")) return 1;
+		else if(name.matches(".*Walls.*")==true) return 3;
 		else return 2;
+
 	}
 
 	/**
