@@ -1,4 +1,4 @@
-﻿
+
 package group11home;
 import java.awt.Color;
 import java.awt.geom.*;
@@ -16,7 +16,7 @@ import java.util.*;
 /**
  * ロボット本体のソースコード
  * レーダーからわかる敵の情報はhttp://www.solar-system.tuis.ac.jp/Java/robocode_api/を参照
- * 	→ScannedRobotEventクラスに保存されるa
+ * 	→ScannedRobotEventクラスに保存される
  */
 public class Main extends TeamRobot
 {
@@ -27,9 +27,9 @@ public class Main extends TeamRobot
 	public static final String Enemy2Name = "Sub1";
 	public static final String Enemy3Name = "Sub2";
 
-	//自分自身の座標
-	public double x;
-	public double y;
+	
+	//標的の名前
+	public String Mark;
 
 	// それぞれ的とWallsの数
 	private int NumOfEnemiesAlive = 3;
@@ -87,18 +87,20 @@ public class Main extends TeamRobot
 		// 例... 敵の数とWallsの数をそれぞれクラスの変数に入れる
 		//NumOfEnemiesAlive = countNumbOfEnemiesAilve();
 		//NumOfWallsAlive = countNumOfWallsAlive();
-		x = getX();
-		y = getY();//ロボットの初期位置を取得
 
+		Mark = "";	
 	}
 
 	/**
 	 * スキャンした敵が味方か相手かWallsかを判別する(担当 ,山下)
 	 * @return 1 味方, 2 相手, 3 Walls
 	 */
-	private int identifyEnemy(ScannedRobotEvent e){
+	private int identifyEnemy(String name){
+
 		if(name.matches("group12.*")) return 1;
+		
 		else if(name.matches(".*Walls.*")==true) return 3;
+
 		else return 2;
 
 	}
@@ -146,18 +148,31 @@ public class Main extends TeamRobot
 	}
 
 	/*
+
 	 * 敵を見つけると敵の動きに合わせてレーダーを合わせる
+
 	 */
+
 	private void chaseenemywithradar(ScannedRobotEvent e){
+
 		double enemydegree; //自分自身を基準とした敵のいる相対角度
+
 		enemydegree = e.getBearing();
+
 		while(e.getEnegy() == 0){
+
 			if(enemydegree < e.getBearing()){
+
 				turnRadarRight(e.getBearing()-enemydegree);
+
 			}else if(enemydegree > e.getBearing()){
+
 				turnRaderLeft(enemydegree-e.getBearing());
+
 			}
+
 		}
+
 	}
 
 	/**
@@ -171,7 +186,7 @@ public class Main extends TeamRobot
 	 * onHitWall: 壁にぶつかったときの動作
 	 */
 	public void onHitWall(HitWallEvent e) {
-		back(20);
+		goTo(getBattleFieldWidth()/2, getBattleFieldHeight()/2);
 	}
 
 	/*反重力移動(要拡張) 参考:https://www.ibm.com/developerworks/jp/java/library/j-antigrav/*/
@@ -187,7 +202,11 @@ public class Main extends TeamRobot
 		while (e.hasMoreElements()) {
 			en = (Enemy)e.nextElement();
 			if (en.live) {
-				p = new GravPoint(en.x,en.y, -1000);
+				
+/////////////////////////////////*改造点:Markで示してある敵に対しては引力を発生させる*/
+				if(en.name == Mark) p = new GravPoint(en.x,en.y, 1000);
+				else p = new GravPoint(en.x,en.y, -1000);
+
 				force = p.power/Math.pow(getRange(getX(),getY(),p.x,p.y),2);
 				//Find the bearing from the point to us
 				ang = normaliseBearing(Math.PI/2 - Math.atan2(getY() - p.y, getX() - p.x));
@@ -299,6 +318,7 @@ public class Main extends TeamRobot
 	 */
 	@Override
 	public void onScannedRobot(ScannedRobotEvent e) {
+
 		Enemy en;
 		if (targets.containsKey(e.getName())) {
 			en = (Enemy)targets.get(e.getName());
@@ -306,6 +326,13 @@ public class Main extends TeamRobot
 			en = new Enemy();
 			targets.put(e.getName(),en);
 		}
+
+		//標的を決定．
+		if(identifyEnemy(e.getName()) !=2){
+			if(Mark =="") Mark = e.getName();
+			else if (targets.get(Mark).live == false ) Mark = e.getName();
+		}
+
 		//敵ロボットが居る角度の計算
 		double absbearing_rad = (getHeadingRadians()+e.getBearingRadians())%(2*PI);
 		//スキャンした敵ロボットの情報を保存
