@@ -27,6 +27,10 @@ public class Main extends TeamRobot
 	public static final String Enemy2Name = "Sub1";
 	public static final String Enemy3Name = "Sub2";
 
+	//自分自身の座標
+	public double x;
+	public double y;
+
 	// それぞれ的とWallsの数
 	private int NumOfEnemiesAlive = 3;
 	private int NumOfWallsAlive = 3;
@@ -83,6 +87,8 @@ public class Main extends TeamRobot
 		// 例... 敵の数とWallsの数をそれぞれクラスの変数に入れる
 		//NumOfEnemiesAlive = countNumbOfEnemiesAilve();
 		//NumOfWallsAlive = countNumOfWallsAlive();
+		x = getX();
+		y = getY();//ロボットの初期位置を取得
 
 	}
 
