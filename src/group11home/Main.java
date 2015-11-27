@@ -336,6 +336,7 @@ class Enemy {
 /**
  * 重力点(この点に引きこまれて行ったり離れていったりという動作に用いる)
  *	(座標はint型で表すからxとかyもdoubleじゃなくてintのほうがよくない？) 広田
+ *       (API見たけど座標や距離は全てdouble型で返ってくるで）藤原
  */
 class GravPoint {
 	public double x,y,power;
