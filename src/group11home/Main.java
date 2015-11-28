@@ -103,19 +103,12 @@ public class Main extends TeamRobot
 	 * スキャンした敵が味方か相手かWallsかを判別する(担当 ,山下)
 	 * @return 1 味方, 2 相手, 3 Walls
 	 */
-<<<<<<< HEAD
-	private int identifyEnemy(ScannedRobotEvent e){
-	
-		if(e.name.matches("group12.*")) return 1;
-		else if(e.name.matches(".*Walls.*")==true) return 3;
-=======
-	private int identifyEnemy(String name){
+private static int identifyEnemy(String name){
 
 		if(name.matches("group12.*")) return 1;
 		
 		else if(name.matches(".*Walls.*")==true) return 3;
 
->>>>>>> 519041ac1cfcd57d160439ab3614c40735fd86e2
 		else return 2;
 
 	}
@@ -178,15 +171,14 @@ public class Main extends TeamRobot
 
 		enemydegree = e.getBearing();
 
-		while(e.getEnegy() == 0){
+		while(e.getEnergy() == 0){
 
 			if(enemydegree < e.getBearing()){
-
-				turnRadarRight(e.getBearing()-enemydegree);
+				setTurnRadarRightRadians(e.getBearing()-enemydegree);
 
 			}else if(enemydegree > e.getBearing()){
 
-				turnRaderLeft(enemydegree-e.getBearing());
+				setTurnRadarLeftRadians(enemydegree - e.getBearing());
 
 			}
 
@@ -224,15 +216,10 @@ public class Main extends TeamRobot
 		while (e.hasMoreElements()) {
 			en = (Enemy)e.nextElement();
 			if (en.live) {
-<<<<<<< HEAD
-				p = new GravPoint(en.x,en.y, -1000);	//-1000は重力(負なので斥力が働く)
-=======
-				
 /////////////////////////////////*改造点:Markで示してある敵に対しては引力を発生させる*/
 				if(en.name == Mark) p = new GravPoint(en.x,en.y, 1000);
 				else p = new GravPoint(en.x,en.y, -1000);
 
->>>>>>> 519041ac1cfcd57d160439ab3614c40735fd86e2
 				force = p.power/Math.pow(getRange(getX(),getY(),p.x,p.y),2);
 				//Find the bearing from the point to us
 				//自分から見た敵の相対角度を計算
@@ -352,8 +339,8 @@ public class Main extends TeamRobot
 		Enemy en;
 		if (targets.containsKey(e.getName())) {
 			en = (Enemy)targets.get(e.getName());
-			// 敵がWallsかどうかチェック
-			en.isEnemy = identifyEnemy(e);
+			// 敵かどうかチェック
+			en.isEnemy = (identifyEnemy(e.getName()) == 2) ? true : false;
 		} else {
 			en = new Enemy();
 			targets.put(e.getName(),en);
