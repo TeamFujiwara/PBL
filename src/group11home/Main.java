@@ -83,6 +83,11 @@ public class Main extends TeamRobot
 
 			//予約された動きの実行
 			execute();
+			
+			//標的にレーダーを向け続ける(メソッド再設計の必要あり)
+			//chaseEnemyWithRadar();
+			
+			//適当に打つ
 
 
 		}
@@ -165,24 +170,23 @@ private static int identifyEnemy(String name){
 
 	 */
 
-	private void chaseenemywithradar(ScannedRobotEvent e){
+	//private void chaseenemywithradar(ScannedRobotEvent e){
+	private void chaseEnemyWithRadar(Enemy e){
 
 		double enemydegree; //自分自身を基準とした敵のいる相対角度
 
 		enemydegree = e.getBearing();
 
-		while(e.getEnergy() == 0){
 
-			if(enemydegree < e.getBearing()){
-				setTurnRadarRightRadians(e.getBearing()-enemydegree);
+		if(enemydegree < e.getBearing()){
+			setTurnRadarRightRadians(e.getBearing()-enemydegree);
 
-			}else if(enemydegree > e.getBearing()){
+		}else if(enemydegree > e.getBearing()){
 
-				setTurnRadarLeftRadians(enemydegree - e.getBearing());
-
-			}
+			setTurnRadarLeftRadians(enemydegree - e.getBearing());
 
 		}
+
 
 	}
 
@@ -337,6 +341,13 @@ private static int identifyEnemy(String name){
 	public void onScannedRobot(ScannedRobotEvent e) {
 
 		Enemy en;
+
+		setTurnRadarLeftRadians(0);
+
+		fire(0.5);
+
+
+		//chaseEnemyWithRadar(e);
 		if (targets.containsKey(e.getName())) {
 			en = (Enemy)targets.get(e.getName());
 			// 敵かどうかチェック
@@ -396,6 +407,11 @@ class Enemy {
 
 		return new Point2D.Double(newX, newY);
 	}
+
+	public double getBearing() {
+		return this.bearing;
+	}
+
 }
 
 /**
