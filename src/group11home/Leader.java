@@ -5,6 +5,8 @@ import java.awt.geom.*;
 import robocode.*;
 import java.util.*;
 
+//Leaderだけの昨日にはコメントをつけて!
+
 /*
  * ソースコードについて
  * 文字コード... UTF-8
