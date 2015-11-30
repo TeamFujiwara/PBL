@@ -19,6 +19,7 @@ import java.util.*;
  */
 
 //TODO: 別々の人が作ってる関数内で共有できる変数がいくつかあるので統合する
+//TODO: 標的の共有をする
 
 /**
  * ロボット本体のソースコード
@@ -238,7 +239,9 @@ private static int identifyEnemy(String name){
 		The strength changes every 5 turns, and goes between -1000 and 1000.  This gives a better
 		overall movement.**/
 
-		//TODO midpointって何?
+		//midpointって何?
+		//壁を避けるために中央に引力を発生させてる．
+		//midpointcountは，時間毎に引力の強さをちょっと変更するためのカウンタ．
 		midpointcount++;
 		if (midpointcount > 5) {
 			midpointcount = 0;
