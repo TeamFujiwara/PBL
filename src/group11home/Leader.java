@@ -371,7 +371,7 @@ private static int identifyEnemy(String name){
 				// 標的を送信(リーダーのみ、リーダーが死んだ後はSub1
 				broadcastMessage(Mark);
 			}
-
+		}
 
 		//敵ロボットが居る角度の計算
 		double absbearing_rad = (getHeadingRadians()+e.getBearingRadians())%(2*PI);

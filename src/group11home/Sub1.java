@@ -29,7 +29,7 @@ import java.util.*;
  */
 public class Main extends TeamRobot
 {
-	public final String RobotName = "Leader";
+	public final String RobotName = "Sub1";
 
 	// 敵ロボットの名前とか
 	public static final String Enemy1Name = "Leader";
@@ -364,13 +364,10 @@ private static int identifyEnemy(String name){
 		if(identifyEnemy(e.getName()) !=2){
 			if(Mark ==""){
 				Mark = e.getName();
-				// 標的を送信(リーダーのみ、リーダーが死んだ後はSub1
-				broadcastMessage(Mark);
 			}else if (targets.get(Mark).live == false ){
 				Mark = e.getName();
-				// 標的を送信(リーダーのみ、リーダーが死んだ後はSub1
-				broadcastMessage(Mark);
 			}
+		}
 
 
 		//敵ロボットが居る角度の計算

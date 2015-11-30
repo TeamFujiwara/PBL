@@ -18,6 +18,10 @@ import java.util.*;
  * 例 ↓
  */
 
+/*
+ * コンソールへの出力はシェルスクリプトを実行したターミナルに表示される
+ * /
+
 //TODO: 別々の人が作ってる関数内で共有できる変数がいくつかあるので統合する
 //TODO: 標的の共有をする
 //TODO	射撃を実装
@@ -29,7 +33,7 @@ import java.util.*;
  */
 public class Main extends TeamRobot
 {
-	public final String RobotName = "Leader";
+	public final String RobotName = "Sub2";
 
 	// 敵ロボットの名前とか
 	public static final String Enemy1Name = "Leader";
@@ -364,13 +368,10 @@ private static int identifyEnemy(String name){
 		if(identifyEnemy(e.getName()) !=2){
 			if(Mark ==""){
 				Mark = e.getName();
-				// 標的を送信(リーダーのみ、リーダーが死んだ後はSub1
-				broadcastMessage(Mark);
 			}else if (targets.get(Mark).live == false ){
 				Mark = e.getName();
-				// 標的を送信(リーダーのみ、リーダーが死んだ後はSub1
-				broadcastMessage(Mark);
 			}
+		}
 
 
 		//敵ロボットが居る角度の計算
