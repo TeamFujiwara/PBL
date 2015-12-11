@@ -1,11 +1,9 @@
 
-package group11home;
+package group11away;
 import java.awt.Color;
 import java.awt.geom.*;
 import robocode.*;
 import java.util.*;
-
-//Leaderだけの昨日にはコメントをつけて!
 
 /*
  * ソースコードについて
@@ -20,6 +18,10 @@ import java.util.*;
  * 例 ↓
  */
 
+/*
+ * コンソールへの出力はシェルスクリプトを実行したターミナルに表示される
+ * /
+
 //TODO: 別々の人が作ってる関数内で共有できる変数がいくつかあるので統合する
 //TODO: 標的の共有をする
 //TODO	射撃を実装
@@ -29,9 +31,9 @@ import java.util.*;
  * レーダーからわかる敵の情報はhttp://www.solar-system.tuis.ac.jp/Java/robocode_api/を参照
  * 	→ScannedRobotEventクラスに保存される
  */
-public class Leader extends TeamRobot
+public class Sub2 extends TeamRobot
 {
-	public final String RobotName = "Leader";
+	public final String RobotName = "Sub2";
 
 	// 敵ロボットの名前とか
 	public static final String Enemy1Name = "Leader";
@@ -366,23 +368,11 @@ private static int identifyEnemy(String name){
 		if(identifyEnemy(e.getName()) !=2){
 			if(Mark ==""){
 				Mark = e.getName();
-				// 標的を送信(リーダーのみ、リーダーが死んだ後はSub1
-				try{
-					broadcastMessage(Mark);
-				}catch(Exception error){
-					System.out.println(error);
-				}
-
 			}else if (targets.get(Mark).live == false ){
 				Mark = e.getName();
-				// 標的を送信(リーダーのみ、リーダーが死んだ後はSub1
-				try{
-					broadcastMessage(Mark);
-				}catch(Exception error){
-					System.out.println(error);
-				}
 			}
 		}
+
 
 		//敵ロボットが居る角度の計算
 		double absbearing_rad = (getHeadingRadians()+e.getBearingRadians())%(2*PI);

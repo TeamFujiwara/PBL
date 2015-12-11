@@ -110,7 +110,7 @@ public class Main extends TeamRobot
 	 * スキャンした敵が味方か相手かWallsかを判別する(担当 ,山下)
 	 * @return 1 味方, 2 相手, 3 Walls
 	 */
-private static int identifyEnemy(String name){
+	private static int identifyEnemy(String name){
 
 		if(name.matches("group12.*")) return 1;
 		
@@ -190,6 +190,8 @@ private static int identifyEnemy(String name){
 		else
 			turnLeft(moveDegreeBearing * -1);
 		
+		// その方向に進む
+		ahead(10);
 
 		// ここに松田が作った打つメソッドを作成
 		

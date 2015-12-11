@@ -5,8 +5,6 @@ import java.awt.geom.*;
 import robocode.*;
 import java.util.*;
 
-//Leaderだけの昨日にはコメントをつけて!
-
 /*
  * ソースコードについて
  * 文字コード... UTF-8
@@ -29,7 +27,7 @@ import java.util.*;
  * レーダーからわかる敵の情報はhttp://www.solar-system.tuis.ac.jp/Java/robocode_api/を参照
  * 	→ScannedRobotEventクラスに保存される
  */
-public class Leader extends TeamRobot
+public class Main extends TeamRobot
 {
 	public final String RobotName = "Leader";
 
@@ -367,22 +365,13 @@ private static int identifyEnemy(String name){
 			if(Mark ==""){
 				Mark = e.getName();
 				// 標的を送信(リーダーのみ、リーダーが死んだ後はSub1
-				try{
-					broadcastMessage(Mark);
-				}catch(Exception error){
-					System.out.println(error);
-				}
-
+				broadcastMessage(Mark);
 			}else if (targets.get(Mark).live == false ){
 				Mark = e.getName();
 				// 標的を送信(リーダーのみ、リーダーが死んだ後はSub1
-				try{
-					broadcastMessage(Mark);
-				}catch(Exception error){
-					System.out.println(error);
-				}
+				broadcastMessage(Mark);
 			}
-		}
+
 
 		//敵ロボットが居る角度の計算
 		double absbearing_rad = (getHeadingRadians()+e.getBearingRadians())%(2*PI);

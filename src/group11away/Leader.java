@@ -1,5 +1,5 @@
 
-package group11home;
+package group11away;
 import java.awt.Color;
 import java.awt.geom.*;
 import robocode.*;

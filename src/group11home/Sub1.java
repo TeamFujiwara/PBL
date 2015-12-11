@@ -27,7 +27,7 @@ import java.util.*;
  * レーダーからわかる敵の情報はhttp://www.solar-system.tuis.ac.jp/Java/robocode_api/を参照
  * 	→ScannedRobotEventクラスに保存される
  */
-public class Main extends TeamRobot
+public class Sub1 extends TeamRobot
 {
 	public final String RobotName = "Sub1";
 
