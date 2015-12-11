@@ -172,18 +172,43 @@ private static int identifyEnemy(String name){
 
 	 */
 
-	//private void chaseenemywithradar(ScannedRobotEvent e){
 	// 12/11 modified
+	// if文で狙ってる敵の時のみこれを動作させる
 	private void chaseEnemyWithRadar(ScannedRobotEvent e){
 		double speed = e.getVelocity();
 		double heading = e.getHeading();
 		double bearing = e.getBearing();
+		double moveDegree = bearingToHeading(bearing) - this.getHeading();	//360度形式の相手の向き - 360度形式の自分の向き
+		if(moveDegree < 0)
+			moveDegree += 360;
+		
+		clearAllEvents();
+
+		double moveDegreeBearing = headingToBearing(moveDegree);	//bearing形式に変換
+		if(moveDegreeBearing > 0)
+			turnLeft(moveDegreeBearing);
+		else
+			turnLeft(moveDegreeBearing * -1);
+		
 
 		// ここに松田が作った打つメソッドを作成
+		
+		
+		
+	}
 
-		//レーダーの回転角度をセット
-		//砲台の回転角度をセット
-		execute();
+	public double headingToBearing(double heading){
+		if(heading <= 180)
+			return heading;
+		else
+			return heading - 360;
+	}
+
+	public double bearingToHeading(double bearing){
+		if(bearing >= 0)
+			return bearing;
+		else
+			return bearing + 360;
 	}
 
 	/**
@@ -341,10 +366,9 @@ private static int identifyEnemy(String name){
 		Enemy en;
 
 		setTurnRadarLeftRadians(0);
+		
+		chaseEnemyWithRadar(e);
 
-
-
-		//chaseEnemyWithRadar(e);
 		if (targets.containsKey(e.getName())) {
 			en = (Enemy)targets.get(e.getName());
 			// 敵かどうかチェック
