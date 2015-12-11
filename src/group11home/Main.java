@@ -173,23 +173,17 @@ private static int identifyEnemy(String name){
 	 */
 
 	//private void chaseenemywithradar(ScannedRobotEvent e){
-	private void chaseEnemyWithRadar(Enemy e){
+	// 12/11 modified
+	private void chaseEnemyWithRadar(ScannedRobotEvent e){
+		double speed = e.getVelocity();
+		double heading = e.getHeading();
+		double bearing = e.getBearing();
 
-		double enemydegree; //自分自身を基準とした敵のいる相対角度
+		// ここに松田が作った打つメソッドを作成
 
-		enemydegree = e.getBearing();
-
-
-		if(enemydegree < e.getBearing()){
-			setTurnRadarRightRadians(e.getBearing()-enemydegree);
-
-		}else if(enemydegree > e.getBearing()){
-
-			setTurnRadarLeftRadians(enemydegree - e.getBearing());
-
-		}
-
-
+		//レーダーの回転角度をセット
+		//砲台の回転角度をセット
+		execute();
 	}
 
 	/**
