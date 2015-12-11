@@ -289,6 +289,16 @@ public void
 		xforce -= 5000/Math.pow(getRange(getX(), getY(), 0, getY()), 3);
 		yforce += 5000/Math.pow(getRange(getX(), getY(), getX(), getBattleFieldHeight()), 3);
 		yforce -= 5000/Math.pow(getRange(getX(), getY(), getX(), 0), 3);
+	
+		//壁と平行に動かないように	
+		if(xforce > -50 && xforce < 50){
+			if(xforce > 0) xforce += 50;
+			else xforce -= 50;
+		}
+		if(yforce > -50 && yforce < 50){
+			if(yforce > 0) yforce += 50;
+			else yforce -= 50;
+		}
 
 		//Move in the direction of our resolved force.
 		goTo(getX()-xforce,getY()-yforce);
