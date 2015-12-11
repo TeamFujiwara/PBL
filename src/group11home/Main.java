@@ -54,6 +54,7 @@ public class Main extends TeamRobot
 	int midpointcount = 0;
 	int EnemyCounter = 3;	//敵の生きている数
 	int WallsCounter = 3;	//Wallsの生きている数
+        
 	/**
 	 *  run: ロボットの全体動作をここに記入(担当: 広田)
 	 */
@@ -62,8 +63,13 @@ public class Main extends TeamRobot
 		// まずロボットの初期化
 		initializeRobot();
 
-		//色を設定(あんま関係ない)
-		setColors(Color.red,Color.blue,Color.green); // body,gun,radar
+		//色を設定
+　　　　　　　　//homeのリーダー
+		setColors(Color.red,Color.pink,Color.orange); // body,gun,radar
+		//homeのサブ
+		//setColors(Color.blue,Color.green,Color.magenda);
+		//awayのリーダー・サブ
+		//setColors(Color.white,Color.white,Color.white);
 
 		targets = new Hashtable();	//敵一覧
 		target = new Enemy();	//ターゲットにする敵
@@ -77,7 +83,7 @@ public class Main extends TeamRobot
 
 		// ロボットのメインループ
 		while(true) {
-
+			modeChange();
 			//	反重力運動をする
 			antiGravMove();
 			//レーダー回転の予約
@@ -119,6 +125,8 @@ public class Main extends TeamRobot
 		else return 2;
 
 	}
+
+public void 
 
 	/**
 	 * 敵の動きが直線運動か円運動か停止しているかを判別する(担当 藤原)
@@ -411,6 +419,15 @@ public class Main extends TeamRobot
 		if ((en.distance < target.distance)||(target.live == false)) {
 			target = en;
 		}
+	}
+	
+	public int modeChange(){
+		int nowmode
+		if(EnemyCounter + WallsCounter == 6) nowmode = 1;
+		else if(EnemyCounter + WallsCounter >= 4) nowmode = 2;
+		else nowmode = 3;
+
+		return nowmode;
 	}
 }
 
