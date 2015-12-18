@@ -64,7 +64,6 @@ public class Main extends TeamRobot
 		initializeRobot();
 
 		//色を設定
-　　　　　　　　//homeのリーダー
 		setColors(Color.red,Color.pink,Color.orange); // body,gun,radar
 		//homeのサブ
 		//setColors(Color.blue,Color.green,Color.magenda);
@@ -76,21 +75,23 @@ public class Main extends TeamRobot
 		target.distance = 100000;	//ターゲットとの距離をとりあえず初期化
 
 		//レーダーや砲台を機体と独立させる
+		/*
 		setAdjustGunForRobotTurn(true);
 		setAdjustRadarForGunTurn(true);
 		turnRadarRightRadians(2*PI);
-
+*/
 
 		// ロボットのメインループ
 		while(true) {
 			modeChange();
+			turnLeft(40);
 			//	反重力運動をする
-			antiGravMove();
+			//antiGravMove();
 			//レーダー回転の予約
-			setTurnRadarLeftRadians(2*PI);
+			//setTurnRadarLeftRadians(2*PI);
 
 			//予約された動きの実行
-			execute();
+			//execute();
 			
 			//標的にレーダーを向け続ける(メソッド再設計の必要あり)
 			//chaseEnemyWithRadar();
@@ -126,7 +127,6 @@ public class Main extends TeamRobot
 
 	}
 
-public void 
 
 	/**
 	 * 敵の動きが直線運動か円運動か停止しているかを判別する(担当 藤原)
@@ -192,14 +192,19 @@ public void
 		
 		clearAllEvents();
 
+		// この場合は砲台とレーダーを一緒に回す
 		double moveDegreeBearing = headingToBearing(moveDegree);	//bearing形式に変換
 		if(moveDegreeBearing > 0)
-			turnLeft(moveDegreeBearing);
+			//turnLeft(moveDegreeBearing);
+			turnLeft(bearing);
 		else
-			turnLeft(moveDegreeBearing * -1);
+			//turnLeft(moveDegreeBearing * -1);
+			turnLeft(bearing);
 		
 		// その方向に進む
-		ahead(10);
+		ahead(100);
+		
+		scan();
 
 		// ここに松田が作った打つメソッドを作成
 		
@@ -403,14 +408,23 @@ public void
 			if(Mark ==""){
 				Mark = e.getName();
 				// 標的を送信(リーダーのみ、リーダーが死んだ後はSub1
-				broadcastMessage(Mark);
+				try{
+					broadcastMessage(Mark);
+				}catch (Exception error){
+					System.out.println("メッセージ送信中にエラー");
+				}
 			}else if (targets.get(Mark).live == false ){
 				Mark = e.getName();
 				// 標的を送信(リーダーのみ、リーダーが死んだ後はSub1
-				broadcastMessage(Mark);
+				try{
+					broadcastMessage(Mark);
+				}catch (Exception error){
+					System.out.println("メッセージ送信中にエラー");
+				}
 			}
+		}
 
-
+/*
 		//敵ロボットが居る角度の計算
 		double absbearing_rad = (getHeadingRadians()+e.getBearingRadians())%(2*PI);
 		//スキャンした敵ロボットの情報を保存
@@ -429,18 +443,20 @@ public void
 		if ((en.distance < target.distance)||(target.live == false)) {
 			target = en;
 		}
+		*/
 	}
 	
+
 	public int modeChange(){
-		int nowmode
+		int nowmode;
 		if(EnemyCounter + WallsCounter == 6) nowmode = 1;
 		else if(EnemyCounter + WallsCounter >= 4) nowmode = 2;
 		else nowmode = 3;
 
 		return nowmode;
 	}
-}
 
+}
 /**
  * 敵に関する情報をここに入れる
  *
@@ -484,3 +500,4 @@ class GravPoint {
 		power = pPower;
 	}
 }
+
