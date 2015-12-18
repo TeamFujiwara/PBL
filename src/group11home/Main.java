@@ -38,7 +38,7 @@ public class Main extends TeamRobot
 
 	
 	//標的の名前
-	public String Mark;
+	public String Mark = "";
 
 	// それぞれ的とWallsの数
 	private int NumOfEnemiesAlive = 3;
@@ -60,7 +60,7 @@ public class Main extends TeamRobot
 	 2.. 敵が1~3体まで死んでる時
 	 3.. それ以上敵が死んでいる時
 	 */
-	int presentMode = 1;
+	int presentMode = 2;
         
 	/**
 	 *  run: ロボットの全体動作をここに記入(担当: 広田)
@@ -82,30 +82,36 @@ public class Main extends TeamRobot
 		target.distance = 100000;	//ターゲットとの距離をとりあえず初期化
 
 		//レーダーや砲台を機体と独立させる
-		/*
 		setAdjustGunForRobotTurn(true);
 		setAdjustRadarForGunTurn(true);
 		turnRadarRightRadians(2*PI);
-*/
 
 		// ロボットのメインループ
 		while(true) {
 			modeChange();
-			turnLeft(40);
-			//	反重力運動をする
-			//antiGravMove();
-			//レーダー回転の予約
-			//setTurnRadarLeftRadians(2*PI);
 
-			//予約された動きの実行
-			//execute();
-			
-			//標的にレーダーを向け続ける(メソッド再設計の必要あり)
-			//chaseEnemyWithRadar();
-			
-			//適当に打つ
+			System.out.println(presentMode);
 
-
+			if(presentMode == 1){
+				//適当に打つ
+				antiGravMove();
+				setTurnRadarLeft(360);
+				execute();
+				fire(0.1);
+				
+			}else if(presentMode == 2){
+		setAdjustGunForRobotTurn(false);
+		setAdjustRadarForGunTurn(false);
+				//レーダーはぐるぐる回す、もし敵が見つかればその方向にいく
+				setTurnRadarLeft(360);
+				execute();
+			}else{
+				// 反重力運動
+				antiGravMove();
+				//レーダー回転の予約
+				setTurnRadarLeftRadians(2*PI);
+				execute();
+			}
 		}
 	}
 
@@ -120,43 +126,32 @@ public class Main extends TeamRobot
 		Mark = "";	
 	}
 
+	@Override
+	public void onRobotDeath(RobotDeathEvent event){
+		int enemyID = identifyEnemy(event.getName());
+		if(enemyID == 2)
+			--EnemyCounter;
+		else if(enemyID == 1)
+			--WallsCounter;
+
+		if(event.getName() == Mark)
+			Mark = "";
+		modeChange();
+	}
+			
+	
 	/**
 	 * スキャンした敵が味方か相手かWallsかを判別する(担当 ,山下)
 	 * @return 1 味方, 2 相手, 3 Walls
 	 */
-	private static int identifyEnemy(String name){
+	private int identifyEnemy(String name){
 
 		if(name.matches("group12.*")) return 1;
 		
-		else if(name.matches(".*Walls.*")==true) return 3;
+		else if(name.matches("Walls.*")==true) return 3;
 
 		else return 2;
 
-	}
-
-	/**
-	 * 生きている敵の数をカウントする(担当: 上田、山下)
-	 * @return 生きている敵の数
-	 */
-	public int countNumbOfEnemiesAlive(RobotDeathEvent e) {
-		if(e.getName() == "" || e.getName() == "" || e.getName() == ""){	//敵の名前を入れる
-			EnemyCounter--;
-		}
-		return EnemyCounter;
-	}
-
-	/**
-	 * 生きているWallsの数をカウントする(担当: 上田、山下)
-	 * @return 生きているWallsの数
-	 */
-	public int countNumOfWallsAlive(RobotDeathEvent e) {
-		if(e.getName() == "Walls (1)" || e.getName() == "Walls (2)" || e.getName() == "Walls (3)"){
-			WallsCounter--;
-		}
-		/*if(e.name.matches("group01.*")) return 1;
-		else if(e.name.matches(".*Walls.*")==true) return 2;
-*/
-		return WallsCounter;
 	}
 
 
@@ -177,24 +172,11 @@ public class Main extends TeamRobot
 	// 12/11 modified
 	// if文で狙ってる敵の時のみこれを動作させる
 	private void chaseEnemyWithRadar(ScannedRobotEvent e){
-		double speed = e.getVelocity();
-		double heading = e.getHeading();
 		double bearing = e.getBearing();
-		double moveDegree = bearingToHeading(bearing) - this.getHeading();	//360度形式の相手の向き - 360度形式の自分の向き
-		if(moveDegree < 0)
-			moveDegree += 360;
+			clearAllEvents();
 		
-		clearAllEvents();
 
-		// この場合は砲台とレーダーを一緒に回す
-		double moveDegreeBearing = headingToBearing(moveDegree);	//bearing形式に変換
-		if(moveDegreeBearing > 0)
-			//turnLeft(moveDegreeBearing);
-			turnLeft(bearing);
-		else
-			//turnLeft(moveDegreeBearing * -1);
-			turnLeft(bearing);
-		
+		turnLeft(bearing);
 		// その方向に進む
 		ahead(100);
 		
@@ -202,9 +184,7 @@ public class Main extends TeamRobot
 
 		// ここに松田が作った打つメソッドを作成
 		
-		
-		
-	}
+	}	
 
 	public double headingToBearing(double heading){
 		if(heading <= 180)
@@ -224,7 +204,6 @@ public class Main extends TeamRobot
 	 * onHitByBullet: 弾が自分にあたったときの動作を書く
 	 */
 	public void onHitByBullet(HitByBulletEvent e) {
-		back(10);
 	}
 
 	/**
@@ -441,15 +420,12 @@ public class Main extends TeamRobot
 	}
 	
 
-	public int modeChange(){
-		int nowmode;
-		if(EnemyCounter + WallsCounter == 6) nowmode = 1;
-		else if(EnemyCounter + WallsCounter >= 4) nowmode = 2;
-		else nowmode = 3;
+	public void modeChange(){
+		if(EnemyCounter + WallsCounter == 6) presentMode = 1;
+		else if(EnemyCounter + WallsCounter >= 4) presentMode = 2;
+		else presentMode = 3;
 
-		return nowmode;
 	}
-
 }
 /**
  * 敵に関する情報をここに入れる
@@ -494,3 +470,4 @@ class GravPoint {
 		power = pPower;
 	}
 }
+
