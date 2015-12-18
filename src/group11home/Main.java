@@ -184,7 +184,45 @@ public class Main extends TeamRobot
 
 		// ここに松田が作った打つメソッドを作成
 		
-	}	
+	}
+	
+	//敵の位置を予測して砲撃するメソッド
+	public void FireEnemy(Enemy en, double power) {
+        double dx = en.x - getX();
+        double dy = en.y - getY();
+        double vx = en.speed * Math.sin(Math.toRadians(en.heading));
+        double vy = en.speed * Math.cos(Math.toRadians(en.heading));
+        double vp = 20 - 3 * power;
+        double A = vx * vx + vy * vy - vp * vp;
+        double B = 2 * vx * dx + 2 * vy * dy;
+        double C = dx * dx + dy * dy;
+        double D = B*B - 4*A*C;
+        double t1, t2, t = -1;
+		double absbearing_rad = (getHeadingRadians()+en.bearing)%(2*PI);
+		
+        if (D >= 0) {
+            t1 = (-B + Math.sqrt(D))/(2*A);
+            t2 = (-B - Math.sqrt(D))/(2*A);
+            if (t1 < 0) {
+                if (t2 >= 0) {
+                    t = t2;
+                }
+            } else {
+                if (t2 < 0 || t1 < t2) {
+                    t = t1;
+                } else {
+                    t = t2;
+                }
+            }
+        }
+        if (t < 0) {
+            return ;
+        }
+		
+		turnGunRight(absbearing_rad);
+		fire(power);
+        
+    }
 
 	public double headingToBearing(double heading){
 		if(heading <= 180)
