@@ -54,6 +54,13 @@ public class Main extends TeamRobot
 	int midpointcount = 0;
 	int EnemyCounter = 3;	//敵の生きている数
 	int WallsCounter = 3;	//Wallsの生きている数
+
+	/* 現在のモード
+	 1...とにかく撃つ(敵が死んでない時)(最初はこれ)
+	 2.. 敵が1~3体まで死んでる時
+	 3.. それ以上敵が死んでいる時
+	 */
+	int presentMode = 1;
         
 	/**
 	 *  run: ロボットの全体動作をここに記入(担当: 広田)
@@ -125,19 +132,6 @@ public class Main extends TeamRobot
 
 		else return 2;
 
-	}
-
-
-	/**
-	 * 敵の動きが直線運動か円運動か停止しているかを判別する(担当 藤原)
-	 * とりあえず放置
-	 * @return 1:直線運動, 2: 円運動, 3: 停止
-	 */
-	public static int analyzeMoveType(ScannedRobotEvent e){
-
-
-
-		return 0;
 	}
 
 	/**
@@ -500,4 +494,3 @@ class GravPoint {
 		power = pPower;
 	}
 }
-
