@@ -36,10 +36,6 @@ public class Main extends TeamRobot
 	public static final String Enemy2Name = "Sub1";
 	public static final String Enemy3Name = "Sub2";
 
-	
-	//標的の名前
-	public String Mark = "";
-
 	// それぞれ的とWallsの数
 	private int NumOfEnemiesAlive = 3;
 	private int NumOfWallsAlive = 3;
@@ -47,8 +43,9 @@ public class Main extends TeamRobot
 	final double PI = Math.PI;	//円周率
 
 	Hashtable<String, Enemy> targets;	//Enemyのハッシュテーブル
-	Enemy target;	//ターゲットにする的
+	Enemy target;	//ターゲットにする敵
 	int direction = 1;
+	boolean hitPossibility; //targetの推定移動位置がフィールドの中かどうかを示す変数
 
 	double midpointstrength = 0;
 	int midpointcount = 0;
@@ -60,7 +57,7 @@ public class Main extends TeamRobot
 	 2.. 敵が1~3体まで死んでる時
 	 3.. それ以上敵が死んでいる時
 	 */
-	int presentMode = 2;
+	int presentMode = 1;
         
 	/**
 	 *  run: ロボットの全体動作をここに記入(担当: 広田)
@@ -79,6 +76,7 @@ public class Main extends TeamRobot
 
 		targets = new Hashtable();	//敵一覧
 		target = new Enemy();	//ターゲットにする敵
+		target.name = "null";
 		target.distance = 100000;	//ターゲットとの距離をとりあえず初期化
 
 		//レーダーや砲台を機体と独立させる
@@ -94,10 +92,12 @@ public class Main extends TeamRobot
 
 			if(presentMode == 1){
 				//適当に打つ
-				antiGravMove();
 				setTurnRadarLeft(360);
+				antiGravMove();
+				doGunCircle(3);
 				execute();
-				fire(0.1);
+				System.out.println(target.name);//デバッグ用．ターゲットを出力する
+				fire(3);
 				
 			}else if(presentMode == 2){
 		setAdjustGunForRobotTurn(false);
@@ -122,8 +122,6 @@ public class Main extends TeamRobot
 		// 例... 敵の数とWallsの数をそれぞれクラスの変数に入れる
 		//NumOfEnemiesAlive = countNumbOfEnemiesAilve();
 		//NumOfWallsAlive = countNumOfWallsAlive();
-
-		Mark = "";	
 	}
 
 	@Override
@@ -134,8 +132,8 @@ public class Main extends TeamRobot
 		else if(enemyID == 1)
 			--WallsCounter;
 
-		if(event.getName() == Mark)
-			Mark = "";
+		if(event.getName() == target.name)
+			target.name = "null";
 		modeChange();
 	}
 			
@@ -186,44 +184,6 @@ public class Main extends TeamRobot
 		
 	}
 	
-	//敵の位置を予測して砲撃するメソッド
-	public void FireEnemy(Enemy en, double power) {
-        double dx = en.x - getX();
-        double dy = en.y - getY();
-        double vx = en.speed * Math.sin(Math.toRadians(en.heading));
-        double vy = en.speed * Math.cos(Math.toRadians(en.heading));
-        double vp = 20 - 3 * power;
-        double A = vx * vx + vy * vy - vp * vp;
-        double B = 2 * vx * dx + 2 * vy * dy;
-        double C = dx * dx + dy * dy;
-        double D = B*B - 4*A*C;
-        double t1, t2, t = -1;
-		double absbearing_rad = (getHeadingRadians()+en.bearing)%(2*PI);
-		
-        if (D >= 0) {
-            t1 = (-B + Math.sqrt(D))/(2*A);
-            t2 = (-B - Math.sqrt(D))/(2*A);
-            if (t1 < 0) {
-                if (t2 >= 0) {
-                    t = t2;
-                }
-            } else {
-                if (t2 < 0 || t1 < t2) {
-                    t = t1;
-                } else {
-                    t = t2;
-                }
-            }
-        }
-        if (t < 0) {
-            return ;
-        }
-		
-		turnGunRight(absbearing_rad);
-		fire(power);
-        
-    }
-
 	public double headingToBearing(double heading){
 		if(heading <= 180)
 			return heading;
@@ -267,8 +227,8 @@ public class Main extends TeamRobot
 		while (e.hasMoreElements()) {
 			en = (Enemy)e.nextElement();
 			if (en.live) {
-/////////////////////////////////*改造点:Markで示してある敵に対しては引力を発生させる*/
-				if(en.name == Mark) p = new GravPoint(en.x,en.y, 1000);
+				/*改造点:targetで示してある敵に対しては引力を発生させる*/
+				if(en.name == target.name) p = new GravPoint(en.x,en.y, 20000);
 				else p = new GravPoint(en.x,en.y, -1000);
 
 				force = p.power/Math.pow(getRange(getX(),getY(),p.x,p.y),2);
@@ -401,9 +361,9 @@ public class Main extends TeamRobot
 
 		Enemy en;
 
-		setTurnRadarLeftRadians(0);
+		//setTurnRadarLeftRadians(0);
 		
-		chaseEnemyWithRadar(e);
+		//chaseEnemyWithRadar(e);
 
 		if (targets.containsKey(e.getName())) {
 			en = (Enemy)targets.get(e.getName());
@@ -415,27 +375,27 @@ public class Main extends TeamRobot
 		}
 
 		//標的を決定．
-		if(identifyEnemy(e.getName()) !=2){
-			if(Mark ==""){
-				Mark = e.getName();
+		if(identifyEnemy(e.getName()) !=1){
+			if(target.name == "null"){
+				target = en;
 				// 標的を送信(リーダーのみ、リーダーが死んだ後はSub1
 				try{
-					broadcastMessage(Mark);
+					broadcastMessage(target.name);
 				}catch (Exception error){
 					System.out.println("メッセージ送信中にエラー");
 				}
-			}else if (targets.get(Mark).live == false ){
-				Mark = e.getName();
+			}else if (targets.get(target.name).live == false ){
+				target = en;
 				// 標的を送信(リーダーのみ、リーダーが死んだ後はSub1
 				try{
-					broadcastMessage(Mark);
+					broadcastMessage(target.name);
 				}catch (Exception error){
 					System.out.println("メッセージ送信中にエラー");
 				}
 			}
 		}
 
-/*
+
 		//敵ロボットが居る角度の計算
 		double absbearing_rad = (getHeadingRadians()+e.getBearingRadians())%(2*PI);
 		//スキャンした敵ロボットの情報を保存
@@ -451,18 +411,51 @@ public class Main extends TeamRobot
 		en.speed = e.getVelocity();
 		en.distance = e.getDistance();
 		en.live = true;
-		if ((en.distance < target.distance)||(target.live == false)) {
-			target = en;
-		}
-		*/
 	}
-	
 
 	public void modeChange(){
 		if(EnemyCounter + WallsCounter == 6) presentMode = 1;
 		else if(EnemyCounter + WallsCounter >= 4) presentMode = 2;
 		else presentMode = 3;
 
+	}
+	
+	//反復での時間計算によって弾丸到達時刻推定を改善する機能を搭載した射撃メソッド 参考:https://www.ibm.com/developerworks/jp/java/library/j-circular/
+	void doGunLinear(int firePower) {
+	    long time;
+	    long nextTime;
+	    Point2D.Double p;
+	    p = new Point2D.Double(target.x, target.y);
+	    for (int i = 0; i < 10; i++){
+	        nextTime = (int)Math.round((getRange(getX(),getY(),p.x,p.y)/(20-(3*firePower))));
+	        time = getTime() + nextTime;
+	        p = target.guessPositionLinear(time);
+	    }
+	    /**Turn the gun to the correct angle**/
+	    double gunOffset = getGunHeadingRadians() - 
+	                  (Math.PI/2 - Math.atan2(p.y - getY(), p.x - getX()));
+	    setTurnGunLeftRadians(normaliseBearing(gunOffset));
+	}
+	void doGunCircle(int firePower) {
+	    long time;
+	    long nextTime;
+	    Point2D.Double p;
+	    p = new Point2D.Double(target.x, target.y);
+	    for (int i = 0; i < 10; i++){
+	        nextTime = (int)Math.round((getRange(getX(),getY(),p.x,p.y)/(20-(3*firePower))));
+	        time = getTime() + nextTime;
+	        p = target.guessPositionCircle(time);
+	    }
+	    /**Turn the gun to the correct angle**/
+	    double gunOffset = getGunHeadingRadians() - 
+	                  (Math.PI/2 - Math.atan2(p.y - getY(), p.x - getX()));
+	    setTurnGunLeftRadians(normaliseBearing(gunOffset));
+		judgeGunFire(p);
+	}
+	void judgeGunFire(Point2D.Double p){
+		if(p.x < 0 || p.y < 0 || p.x > getBattleFieldWidth() || p.y > getBattleFieldHeight())
+			hitPossibility = false;
+		else hitPossibility = true;
 	}
 }
 /**
@@ -481,12 +474,40 @@ class Enemy {
 	public long ctime; 		//game time that the scan was produced
 	public boolean live; 	//is the enemy alive?
 	public boolean isEnemy = true;	//wallsならfalseにする
-	public Point2D.Double guessPosition(long when) {
+	public Point2D.Double guessPositionLinear(long when) {
 		double diff = when - ctime;
 		double newY = y + Math.cos(heading) * speed * diff;
 		double newX = x + Math.sin(heading) * speed * diff;
 
 		return new Point2D.Double(newX, newY);
+	}
+	//円形予測 参考:https://www.ibm.com/developerworks/jp/java/library/j-circular/
+	public Point2D.Double guessPositionCircle(long when) {
+    	
+	/**time is when our scan data was produced.  when is the time that we think the bullet will reach the target.  diff is the difference between the two **/
+	//time は相手をスキャンしたゲーム内時刻．whenはターゲットに弾が当たると予想される時刻．diffはその2つの間の時間．
+    	
+	double diff = when - ctime;
+   		double newX, newY;
+  	/**if there is a significant change in heading, use circular path prediction**/
+	//敵の車体の向きが変わっているようなら円形予測を使う
+
+   		if (Math.abs(changehead) > 0.00001) {
+   		    double radius = speed/changehead;
+   		    double tothead = diff * changehead;
+	        newY = y + (Math.sin(heading + tothead) * radius) - 
+               		      (Math.sin(heading) * radius);
+       		newX = x + (Math.cos(heading) * radius) - 
+	                      (Math.cos(heading + tothead) * radius);
+   		}
+    	/**if the change in heading is insignificant, use linear path prediction**/
+	//車体の向きがほぼ同じなら線形予測を使う
+
+   		else {
+       		newY = y + Math.cos(heading) * speed * diff;
+       		newX = x + Math.sin(heading) * speed * diff;
+   		}
+   		return new Point2D.Double(newX, newY);
 	}
 
 	public double getBearing() {
