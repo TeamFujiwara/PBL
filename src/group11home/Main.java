@@ -503,12 +503,10 @@ class Enemy {
 	//円形予測 参考:https://www.ibm.com/developerworks/jp/java/library/j-circular/
 	public Point2D.Double guessPositionCircle(long when) {
     	
-	/**time is when our scan data was produced.  when is the time that we think the bullet will reach the target.  diff is the difference between the two **/
 	//time は相手をスキャンしたゲーム内時刻．whenはターゲットに弾が当たると予想される時刻．diffはその2つの間の時間．
     	
 	double diff = when - ctime;
    		double newX, newY;
-  	/**if there is a significant change in heading, use circular path prediction**/
 	//敵の車体の向きが変わっているようなら円形予測を使う
 
    		if (Math.abs(changehead) > 0.00001) {
@@ -519,7 +517,6 @@ class Enemy {
        		newX = x + (Math.cos(heading) * radius) - 
 	                      (Math.cos(heading + tothead) * radius);
    		}
-    	/**if the change in heading is insignificant, use linear path prediction**/
 	//車体の向きがほぼ同じなら線形予測を使う
 
    		else {
