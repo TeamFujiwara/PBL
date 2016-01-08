@@ -421,6 +421,10 @@ public class Main extends TeamRobot
 	}
 	
 	//反復での時間計算によって弾丸到達時刻推定を改善する機能を搭載した射撃メソッド 参考:https://www.ibm.com/developerworks/jp/java/library/j-circular/
+	
+	/**
+	 * 線型予測で射撃するメソッド
+	 */
 	void doGunLinear(int firePower) {
 	    long time;
 	    long nextTime;
@@ -436,6 +440,10 @@ public class Main extends TeamRobot
 	                  (Math.PI/2 - Math.atan2(p.y - getY(), p.x - getX()));
 	    setTurnGunLeftRadians(normaliseBearing(gunOffset));
 	}
+
+	/**
+	 * 円形予測で射撃するメソッド
+	 */
 	void doGunCircle(int firePower) {
 	    long time;
 	    long nextTime;
@@ -463,16 +471,10 @@ public class Main extends TeamRobot
  *
  */
 class Enemy {
-	/*
-	 * ok, we should really be using accessors and mutators here,
-	 * (i.e getName() and setName()) but life's too short.
-	 * ↑日本語訳(広田)
-	 * getNameとかsetNameみたいなメソッドを作ったほうがいいんかもしれんけど、時間もったいないしやってない
-	 */
 	String name;
 	public double bearing,heading,speed,x,y,distance,changehead;
-	public long ctime; 		//game time that the scan was produced
-	public boolean live; 	//is the enemy alive?
+	public long ctime; 		//スキャンできている時間
+	public boolean live; 	//敵が生きていればtrue
 	public boolean isEnemy = true;	//wallsならfalseにする
 	public Point2D.Double guessPositionLinear(long when) {
 		double diff = when - ctime;
@@ -484,12 +486,10 @@ class Enemy {
 	//円形予測 参考:https://www.ibm.com/developerworks/jp/java/library/j-circular/
 	public Point2D.Double guessPositionCircle(long when) {
     	
-	/**time is when our scan data was produced.  when is the time that we think the bullet will reach the target.  diff is the difference between the two **/
 	//time は相手をスキャンしたゲーム内時刻．whenはターゲットに弾が当たると予想される時刻．diffはその2つの間の時間．
     	
-	double diff = when - ctime;
+		double diff = when - ctime;
    		double newX, newY;
-  	/**if there is a significant change in heading, use circular path prediction**/
 	//敵の車体の向きが変わっているようなら円形予測を使う
 
    		if (Math.abs(changehead) > 0.00001) {
@@ -500,8 +500,8 @@ class Enemy {
        		newX = x + (Math.cos(heading) * radius) - 
 	                      (Math.cos(heading + tothead) * radius);
    		}
-    	/**if the change in heading is insignificant, use linear path prediction**/
-	//車体の向きがほぼ同じなら線形予測を使う
+
+		//車体の向きがほぼ同じなら線形予測を使う
 
    		else {
        		newY = y + Math.cos(heading) * speed * diff;
