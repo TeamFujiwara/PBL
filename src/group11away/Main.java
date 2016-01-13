@@ -36,10 +36,6 @@ public class Main extends TeamRobot
 	public static final String Enemy2Name = "Sub1";
 	public static final String Enemy3Name = "Sub2";
 
-	
-	//標的の名前
-	public String Mark;
-
 	// それぞれ的とWallsの数
 	private int NumOfEnemiesAlive = 3;
 	private int NumOfWallsAlive = 3;
@@ -47,13 +43,22 @@ public class Main extends TeamRobot
 	final double PI = Math.PI;	//円周率
 
 	Hashtable<String, Enemy> targets;	//Enemyのハッシュテーブル
-	Enemy target;	//ターゲットにする的
+	Enemy target;	//ターゲットにする敵
 	int direction = 1;
+	boolean hitPossibility; //targetの推定移動位置がフィールドの中かどうかを示す変数
 
 	double midpointstrength = 0;
 	int midpointcount = 0;
 	int EnemyCounter = 3;	//敵の生きている数
 	int WallsCounter = 3;	//Wallsの生きている数
+
+	/* 現在のモード
+	 1...とにかく撃つ(敵が死んでない時)(最初はこれ)
+	 2.. 敵が1~3体まで死んでる時
+	 3.. それ以上敵が死んでいる時
+	 */
+	int presentMode = 1;
+        
 	/**
 	 *  run: ロボットの全体動作をここに記入(担当: 広田)
 	 */
@@ -62,36 +67,59 @@ public class Main extends TeamRobot
 		// まずロボットの初期化
 		initializeRobot();
 
-		//色を設定(あんま関係ない)
-		setColors(Color.red,Color.blue,Color.green); // body,gun,radar
+		//色を設定
+		setColors(Color.red,Color.pink,Color.orange); // body,gun,radar
+		//homeのサブ
+		//setColors(Color.blue,Color.green,Color.magenda);
+		//awayのリーダー・サブ
+		//setColors(Color.white,Color.white,Color.white);
 
 		targets = new Hashtable();	//敵一覧
 		target = new Enemy();	//ターゲットにする敵
+		target.name = "null";
 		target.distance = 100000;	//ターゲットとの距離をとりあえず初期化
+		double firePower = 0.1; 
 
 		//レーダーや砲台を機体と独立させる
 		setAdjustGunForRobotTurn(true);
 		setAdjustRadarForGunTurn(true);
 		turnRadarRightRadians(2*PI);
 
-
 		// ロボットのメインループ
 		while(true) {
+			modeChange();
 
-			//	反重力運動をする
-			antiGravMove();
-			//レーダー回転の予約
-			setTurnRadarLeftRadians(2*PI);
+			System.out.println(presentMode);
 
-			//予約された動きの実行
-			execute();
-			
-			//標的にレーダーを向け続ける(メソッド再設計の必要あり)
-			//chaseEnemyWithRadar();
-			
-			//適当に打つ
-
-
+			if(presentMode != 3){
+				//適当に打つ
+				firePower=3;
+				setTurnRadarLeft(360);
+				antiGravMove(10000);
+				doGunCircle(firePower);
+				execute();
+				System.out.println(target.name);//デバッグ用．ターゲットを出力する
+				fire(firePower);
+				
+/*			}else if(presentMode == 2){
+		setAdjustGunForRobotTurn(false);
+		setAdjustRadarForGunTurn(false);
+				//レーダーはぐるぐる回す、もし敵が見つかればその方向にいく
+				setTurnRadarLeft(360);
+				doGunCircle(3);
+				execute();
+				fire(3);
+	*/		}else{
+				//レーダー回転の予約
+				setTurnRadarLeftRadians(2*PI);
+				// 反重力運動
+				antiGravMove(-1000);
+				firePower = doFirePower();
+				doGunCircle(firePower);
+				System.out.println(target.name);
+				execute();
+				if(hitPossibility)fire(firePower);
+			}
 		}
 	}
 
@@ -102,59 +130,34 @@ public class Main extends TeamRobot
 		// 例... 敵の数とWallsの数をそれぞれクラスの変数に入れる
 		//NumOfEnemiesAlive = countNumbOfEnemiesAilve();
 		//NumOfWallsAlive = countNumOfWallsAlive();
-
-		Mark = "";	
 	}
 
+	@Override
+	public void onRobotDeath(RobotDeathEvent event){
+		int enemyID = identifyEnemy(event.getName());
+		if(enemyID == 2)
+			--EnemyCounter;
+		else if(enemyID == 3)
+			--WallsCounter;
+
+		if(event.getName() == target.name)
+			target.name = "null";
+		modeChange();
+	}
+			
+	
 	/**
 	 * スキャンした敵が味方か相手かWallsかを判別する(担当 ,山下)
 	 * @return 1 味方, 2 相手, 3 Walls
 	 */
-private static int identifyEnemy(String name){
+	private int identifyEnemy(String name){
 
-		if(name.matches("group12.*")) return 1;
+		if(name.matches("group11.*")) return 1;
 		
 		else if(name.matches(".*Walls.*")==true) return 3;
 
 		else return 2;
 
-	}
-
-	/**
-	 * 敵の動きが直線運動か円運動か停止しているかを判別する(担当 藤原)
-	 * とりあえず放置
-	 * @return 1:直線運動, 2: 円運動, 3: 停止
-	 */
-	public static int analyzeMoveType(ScannedRobotEvent e){
-
-
-
-		return 0;
-	}
-
-	/**
-	 * 生きている敵の数をカウントする(担当: 上田、山下)
-	 * @return 生きている敵の数
-	 */
-	public int countNumbOfEnemiesAlive(RobotDeathEvent e) {
-		if(e.getName() == "" || e.getName() == "" || e.getName() == ""){	//敵の名前を入れる
-			EnemyCounter--;
-		}
-		return EnemyCounter;
-	}
-
-	/**
-	 * 生きているWallsの数をカウントする(担当: 上田、山下)
-	 * @return 生きているWallsの数
-	 */
-	public int countNumOfWallsAlive(RobotDeathEvent e) {
-		if(e.getName() == "Walls (1)" || e.getName() == "Walls (2)" || e.getName() == "Walls (3)"){
-			WallsCounter--;
-		}
-		/*if(e.name.matches("group01.*")) return 1;
-		else if(e.name.matches(".*Walls.*")==true) return 2;
-*/
-		return WallsCounter;
 	}
 
 
@@ -172,31 +175,41 @@ private static int identifyEnemy(String name){
 
 	 */
 
-	//private void chaseenemywithradar(ScannedRobotEvent e){
-	private void chaseEnemyWithRadar(Enemy e){
+	// 12/11 modified
+	// if文で狙ってる敵の時のみこれを動作させる
+	private void chaseEnemyWithRadar(ScannedRobotEvent e){
+		double bearing = e.getBearing();
+			clearAllEvents();
+		
 
-		double enemydegree; //自分自身を基準とした敵のいる相対角度
+		turnLeft(bearing);
+		// その方向に進む
+		ahead(100);
+		
+		scan();
 
-		enemydegree = e.getBearing();
+		// ここに松田が作った打つメソッドを作成
+		
+	}
+	
+	public double headingToBearing(double heading){
+		if(heading <= 180)
+			return heading;
+		else
+			return heading - 360;
+	}
 
-
-		if(enemydegree < e.getBearing()){
-			setTurnRadarRightRadians(e.getBearing()-enemydegree);
-
-		}else if(enemydegree > e.getBearing()){
-
-			setTurnRadarLeftRadians(enemydegree - e.getBearing());
-
-		}
-
-
+	public double bearingToHeading(double bearing){
+		if(bearing >= 0)
+			return bearing;
+		else
+			return bearing + 360;
 	}
 
 	/**
 	 * onHitByBullet: 弾が自分にあたったときの動作を書く
 	 */
 	public void onHitByBullet(HitByBulletEvent e) {
-		back(10);
 	}
 
 	/**
@@ -208,7 +221,7 @@ private static int identifyEnemy(String name){
 
 	/*反重力移動(要拡張)
 	 * 参考:https://www.ibm.com/developerworks/jp/java/library/j-antigrav/*/
-	void antiGravMove() {
+	void antiGravMove(double gravToTarget) {
 		// xforceとyforceはそれぞれ敵の位置から計算して導出。forceが大きいほどその方向に押される
 		double xforce = 0;
 		double yforce = 0;
@@ -222,8 +235,8 @@ private static int identifyEnemy(String name){
 		while (e.hasMoreElements()) {
 			en = (Enemy)e.nextElement();
 			if (en.live) {
-/////////////////////////////////*改造点:Markで示してある敵に対しては引力を発生させる*/
-				if(en.name == Mark) p = new GravPoint(en.x,en.y, 1000);
+				/*改造点:targetで示してある敵に対しては引力を発生させる*/
+				if(en.name == target.name) p = new GravPoint(en.x,en.y, gravToTarget);
 				else p = new GravPoint(en.x,en.y, -1000);
 
 				force = p.power/Math.pow(getRange(getX(),getY(),p.x,p.y),2);
@@ -260,6 +273,16 @@ private static int identifyEnemy(String name){
 		xforce -= 5000/Math.pow(getRange(getX(), getY(), 0, getY()), 3);
 		yforce += 5000/Math.pow(getRange(getX(), getY(), getX(), getBattleFieldHeight()), 3);
 		yforce -= 5000/Math.pow(getRange(getX(), getY(), getX(), 0), 3);
+	
+		//壁と平行に動かないように	
+		if(xforce > -50 && xforce < 50){
+			if(xforce > 0) xforce += 50;
+			else xforce -= 50;
+		}
+		if(yforce > -50 && yforce < 50){
+			if(yforce > 0) yforce += 50;
+			else yforce -= 50;
+		}
 
 		//Move in the direction of our resolved force.
 		goTo(getX()-xforce,getY()-yforce);
@@ -346,11 +369,10 @@ private static int identifyEnemy(String name){
 
 		Enemy en;
 
-		setTurnRadarLeftRadians(0);
-
-
-
+		//setTurnRadarLeftRadians(0);
+		
 		//chaseEnemyWithRadar(e);
+
 		if (targets.containsKey(e.getName())) {
 			en = (Enemy)targets.get(e.getName());
 			// 敵かどうかチェック
@@ -361,16 +383,25 @@ private static int identifyEnemy(String name){
 		}
 
 		//標的を決定．
-		if(identifyEnemy(e.getName()) !=2){
-			if(Mark ==""){
-				Mark = e.getName();
+		if(identifyEnemy(e.getName()) !=1){
+			if(target.name == "null"){
+				target = en;
 				// 標的を送信(リーダーのみ、リーダーが死んだ後はSub1
-				broadcastMessage(Mark);
-			}else if (targets.get(Mark).live == false ){
-				Mark = e.getName();
+				try{
+					broadcastMessage(target.name);
+				}catch (Exception error){
+					System.out.println("メッセージ送信中にエラー");
+				}
+			}else if (targets.get(target.name).live == false ){
+				target = en;
 				// 標的を送信(リーダーのみ、リーダーが死んだ後はSub1
-				broadcastMessage(Mark);
+				try{
+					broadcastMessage(target.name);
+				}catch (Exception error){
+					System.out.println("メッセージ送信中にエラー");
+				}
 			}
+		}
 
 
 		//敵ロボットが居る角度の計算
@@ -388,12 +419,64 @@ private static int identifyEnemy(String name){
 		en.speed = e.getVelocity();
 		en.distance = e.getDistance();
 		en.live = true;
-		if ((en.distance < target.distance)||(target.live == false)) {
+		if (presentMode!=2&&identifyEnemy(e.getName()) !=1&&(en.distance < target.distance)) {
 			target = en;
 		}
 	}
-}
 
+	public void modeChange(){
+		if(EnemyCounter + WallsCounter >= 6) presentMode = 1;
+		else if(EnemyCounter + WallsCounter >= 4) presentMode = 2;
+		else presentMode = 3;
+
+	}
+	
+	//反復での時間計算によって弾丸到達時刻推定を改善する機能を搭載した射撃メソッド 参考:https://www.ibm.com/developerworks/jp/java/library/j-circular/
+	void doGunLinear(double firePower) {
+	    long time;
+	    long nextTime;
+	    Point2D.Double p;
+	    p = new Point2D.Double(target.x, target.y);
+	    for (int i = 0; i < 10; i++){
+	        nextTime = (int)Math.round((getRange(getX(),getY(),p.x,p.y)/(20-(3*firePower))));
+	        time = getTime() + nextTime;
+	        p = target.guessPositionLinear(time);
+	    }
+	    /**Turn the gun to the correct angle**/
+	    double gunOffset = getGunHeadingRadians() - 
+	                  (Math.PI/2 - Math.atan2(p.y - getY(), p.x - getX()));
+	    setTurnGunLeftRadians(normaliseBearing(gunOffset));
+	}
+	void doGunCircle(double firePower) {
+	    long time;
+	    long nextTime;
+	    Point2D.Double p;
+	    p = new Point2D.Double(target.x, target.y);
+	    for (int i = 0; i < 10; i++){
+	        nextTime = (int)Math.round((getRange(getX(),getY(),p.x,p.y)/(20-(3*firePower))));
+	        time = getTime() + nextTime;
+	        p = target.guessPositionCircle(time);
+	    }
+	    /**Turn the gun to the correct angle**/
+	    double gunOffset = getGunHeadingRadians() - 
+	                  (Math.PI/2 - Math.atan2(p.y - getY(), p.x - getX()));
+	    setTurnGunLeftRadians(normaliseBearing(gunOffset));
+		judgeGunFire(p);
+	}
+	void judgeGunFire(Point2D.Double p){
+		if(p.x < 0 || p.y < 0 || p.x > getBattleFieldWidth() || p.y > getBattleFieldHeight())
+			hitPossibility = false;
+		else hitPossibility = true;
+	}
+	double doFirePower() {
+		double firePower;
+		firePower = 400/target.distance;//selects a bullet power based on our distance away from the target
+		if (firePower > 3) {
+			return 3;
+		}
+		return firePower;
+	}
+}
 /**
  * 敵に関する情報をここに入れる
  *
@@ -410,12 +493,37 @@ class Enemy {
 	public long ctime; 		//game time that the scan was produced
 	public boolean live; 	//is the enemy alive?
 	public boolean isEnemy = true;	//wallsならfalseにする
-	public Point2D.Double guessPosition(long when) {
+	public Point2D.Double guessPositionLinear(long when) {
 		double diff = when - ctime;
 		double newY = y + Math.cos(heading) * speed * diff;
 		double newX = x + Math.sin(heading) * speed * diff;
 
 		return new Point2D.Double(newX, newY);
+	}
+	//円形予測 参考:https://www.ibm.com/developerworks/jp/java/library/j-circular/
+	public Point2D.Double guessPositionCircle(long when) {
+    	
+	//time は相手をスキャンしたゲーム内時刻．whenはターゲットに弾が当たると予想される時刻．diffはその2つの間の時間．
+    	
+	double diff = when - ctime;
+   		double newX, newY;
+	//敵の車体の向きが変わっているようなら円形予測を使う
+
+   		if (Math.abs(changehead) > 0.00001) {
+   		    double radius = speed/changehead;
+   		    double tothead = diff * changehead;
+	        newY = y + (Math.sin(heading + tothead) * radius) - 
+               		      (Math.sin(heading) * radius);
+       		newX = x + (Math.cos(heading) * radius) - 
+	                      (Math.cos(heading + tothead) * radius);
+   		}
+	//車体の向きがほぼ同じなら線形予測を使う
+
+   		else {
+       		newY = y + Math.cos(heading) * speed * diff;
+       		newX = x + Math.sin(heading) * speed * diff;
+   		}
+   		return new Point2D.Double(newX, newY);
 	}
 
 	public double getBearing() {
@@ -437,3 +545,4 @@ class GravPoint {
 		power = pPower;
 	}
 }
+

@@ -35,7 +35,7 @@ public class Sub2 extends Group11Robot{
 
 		//色を設定
 		//homeのメイン
-		//setColors(Color.red,Color.pink,Color.orange); // body,gun,radar
+		//setColors(Colored,Color.pink,Color.orange); // body,gun,radar
 		//homeのサブ
 		setColors(Color.blue,Color.green,Color.magenta);
 		//awayのリーダー・サブ

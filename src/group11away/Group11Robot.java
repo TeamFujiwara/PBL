@@ -77,7 +77,7 @@ public class Group11Robot extends TeamRobot{
 	 * スキャンした敵が味方か相手かWallsかを判別する
 	 * @return 1 味方, 2 相手, 3 Walls
 	 */
-	private int identifyEnemy(String name){
+	int identifyEnemy(String name){
 
 		if(name.matches("group11.*")) return 1;
 		
