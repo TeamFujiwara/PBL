@@ -331,7 +331,10 @@ public class Group11Robot extends TeamRobot{
 
 	public void modeChange(){
 		if(EnemyCounter + WallsCounter >= 6) presentMode = 1;
-		else if(EnemyCounter + WallsCounter >= 3) presentMode = 2;
+		else if(EnemyCounter + WallsCounter >= 3){
+			presentMode = 2;
+			target.name = "null";
+		}
 		else presentMode = 3;
 		if(TeamCounter <=1) presentMode = 3;
 	}
