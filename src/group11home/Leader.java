@@ -28,30 +28,7 @@ import java.util.*;
  */
 public class Leader extends Group11Robot{
 
-	// それぞれ敵とWallsの数
-	//private int NumOfEnemiesAlive = 3;
-	//private int NumOfWallsAlive = 3;
-
-	final double PI = Math.PI;	//円周率
-
-	Hashtable<String, Enemy> targets;	//Enemyのハッシュテーブル
-	Enemy target;	//ターゲットにする敵
-	boolean hitPossibility; //targetの推定移動位置がフィールドの中かどうかを示す変数
-
-	double midpointstrength = 0;
-	int midpointcount = 0;
-	int TeamCounter = 3;	//味方の生きている数
-	int EnemyCounter = 3;	//敵の生きている数
-	int WallsCounter = 3;	//Wallsの生きている数
-	boolean leaderAlive = true; //リーダーが生きているかどうか
-
-	/* 現在のモード
-	 1...近くの敵を狙ってとにかく撃つ(敵が死んでない時)(最初はこれ)
-	 2.. 敵が1~4体まで死んでる時
-	 3.. それ以上敵が死んでいる時，味方が残り1機になった時，リーダーが死んだとき
-	 */
-	int presentMode = 1;
-        
+	int whoIsMe = 1;
 	/**
 	 *  run: ロボットの全体動作をここに記入
 	 */
@@ -109,74 +86,5 @@ public class Leader extends Group11Robot{
 		}
 	}
 
-	/**
-	 * onScannedRobot: 敵を察知したときの動作
-	 */
-	@Override
-	public void onScannedRobot(ScannedRobotEvent e) {
 
-		Enemy en;
-
-		if (targets.containsKey(e.getName())) {
-			en = (Enemy)targets.get(e.getName());
-			// 敵かどうかチェック
-			en.isEnemy = (identifyEnemy(e.getName()) == 2) ? true : false;
-		} else {
-			en = new Enemy();
-			targets.put(e.getName(),en);
-		}
-
-		//標的を決定．
-		if(identifyEnemy(e.getName()) !=1){
-			if(en.isEnemy){
-				if(target.name == "null"){
-					target = en;
-					try{
-						broadcastMessage(target.name);
-						System.out.println("targetchange:" + target.name);
-					}catch (Exception error){
-						System.out.println("メッセージ送信中にエラー");
-					}
-				}else if (targets.get(target.name).live == false){
-					target = en;
-					try{
-						broadcastMessage(target.name);
-					}catch (Exception error){
-						System.out.println("メッセージ送信中にエラー");
-					}
-				}
-			}else if(EnemyCounter <= 0){
-				if(target.name == "null"){
-					target = en;
-				}else if (targets.get(target.name).live == false){
-					target = en;
-				}
-			}
-		}
-
-
-		//敵ロボットが居る角度の計算
-		double absbearing_rad = (getHeadingRadians()+e.getBearingRadians())%(2*PI);
-		//スキャンした敵ロボットの情報を保存
-		en.name = e.getName();
-		double h = normaliseBearing(e.getHeadingRadians() - en.heading);
-		h = h/(getTime() - en.ctime);
-		en.changehead = h;
-		en.x = getX()+Math.sin(absbearing_rad)*e.getDistance(); //敵ロボットのx座標
-		en.y = getY()+Math.cos(absbearing_rad)*e.getDistance(); //y座標
-		en.bearing = e.getBearingRadians();
-		en.heading = e.getHeadingRadians();
-		en.ctime = getTime();				//スキャンした時間
-		en.speed = e.getVelocity();
-		en.distance = e.getDistance();
-		en.live = true;
-		if (presentMode!=2&&identifyEnemy(e.getName()) !=1&&(en.distance < target.distance)) {
-			target = en;
-		}
-	}
-
-	//名前が送信されてきた敵をターゲットに指定(Sub機のみ)
-	public void onMessageReceived(MessageEvent e){
-		//if (targets.containsKey(e.getMessage()))target = (Enemy)targets.get(e.getMessage());
-	}
 }

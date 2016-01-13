@@ -47,6 +47,8 @@ public class Group11Robot extends TeamRobot{
 	 3.. それ以上敵が死んでいる時，味方が残り1機になった時，リーダーが死んだとき
 	 */
 	public int presentMode = 1;
+
+	int whoAmI;	//Leaderなら1,sub1なら2,sub2なら3
         
 	/**
 	 *  run: 色がロボットごとに異なるので実装
@@ -253,11 +255,40 @@ public class Group11Robot extends TeamRobot{
 			en.isEnemy = (identifyEnemy(e.getName()) == 2) ? true : false;
 		} else {
 			en = new Enemy();
+			if(identifyEnemy(e.getName()) == 1) en.isTeamMate = true;
 			targets.put(e.getName(),en);
 		}
 
+		if(whoAmI == 1){
 		//標的を決定．
 		if(identifyEnemy(e.getName()) !=1){
+			if(en.isEnemy){
+				if(target.name == "null"){
+					target = en;
+					try{
+						broadcastMessage(target.name);
+						System.out.println("targetchange:" + target.name);
+					}catch (Exception error){
+						System.out.println("メッセージ送信中にエラー");
+					}
+				}else if (targets.get(target.name).live == false){
+					target = en;
+					try{
+						broadcastMessage(target.name);
+					}catch (Exception error){
+						System.out.println("メッセージ送信中にエラー");
+					}
+				}
+			}else if(EnemyCounter <= 0){
+				if(target.name == "null"){
+					target = en;
+				}else if (targets.get(target.name).live == false){
+					target = en;
+				}
+			}
+		}
+		}else{
+				if(identifyEnemy(e.getName()) !=1){
 			if(en.isEnemy){
 				if(target.name == "null"){
 					target = en;
@@ -272,6 +303,10 @@ public class Group11Robot extends TeamRobot{
 				}
 			}
 		}
+		}
+
+			
+			
 
 
 		//敵ロボットが居る角度の計算
@@ -333,10 +368,29 @@ public class Group11Robot extends TeamRobot{
 	    setTurnGunLeftRadians(normaliseBearing(gunOffset));
 		judgeGunFire(p);
 	}
+
+	// ここに味方を打ちそうなら打たないという条件も追加する
 	void judgeGunFire(Point2D.Double p){
-		if(p.x < 0 || p.y < 0 || p.x > getBattleFieldWidth() || p.y > getBattleFieldHeight())
+
+		Enumeration ens = targets.elements();
+		while(ens.hasMoreElements()){
+			Enemy en = (Enemy)ens.nextElement();
+			if(!en.isTeamMate)
+				break;
+			else{
+				
+			}
+		}
+				
+
+		
+		if(p.x < 0 || p.y < 0 || p.x > getBattleFieldWidth() || p.y > getBattleFieldHeight()){
 			hitPossibility = false;
-		else hitPossibility = true;
+			return;
+		}
+
+		hitPossibility = true;
+		return;
 	}
 	double doFirePower(){
 		double firePower;
@@ -347,6 +401,7 @@ public class Group11Robot extends TeamRobot{
 		return firePower;
 	}
 }
+
 /**
  * 敵に関する情報をここに入れる
  *
@@ -363,6 +418,7 @@ class Enemy {
 	public long ctime; 		//game time that the scan was produced
 	public boolean live; 	//is the enemy alive?
 	public boolean isEnemy = true;	//wallsならfalseにする
+	public boolean isTeamMate = false; //チームメイトならtrueにする
 	public Point2D.Double guessPositionLinear(long when) {
 		double diff = when - ctime;
 		double newY = y + Math.cos(heading) * speed * diff;
