@@ -28,25 +28,25 @@ import java.util.*;
  */
 public class Group11Robot extends TeamRobot{
 
-	final double PI = Math.PI;	//円周率
+	public final double PI = Math.PI;	//円周率
 
-	Hashtable<String, Enemy> targets;	//Enemyのハッシュテーブル
-	Enemy target;	//ターゲットにする敵
-	boolean hitPossibility; //targetの推定移動位置がフィールドの中かどうかを示す変数
+	public	Hashtable<String, Enemy> targets;	//Enemyのハッシュテーブル
+	public	Enemy target;	//ターゲットにする敵
+	public	boolean hitPossibility; //targetの推定移動位置がフィールドの中かどうかを示す変数
 
-	double midpointstrength = 0;
-	int midpointcount = 0;
-	int TeamCounter = 3;	//味方の生きている数
-	int EnemyCounter = 3;	//敵の生きている数
-	int WallsCounter = 3;	//Wallsの生きている数
-	boolean leaderAlive = true; //リーダーが生きているかどうか
+	public	double midpointstrength = 0;
+	public	int midpointcount = 0;
+	public	int TeamCounter = 3;	//味方の生きている数
+	public	int EnemyCounter = 3;	//敵の生きている数
+	public	int WallsCounter = 3;	//Wallsの生きている数
+	public	boolean leaderAlive = true; //リーダーが生きているかどうか
 
 	/* 現在のモード
 	 1...近くの敵を狙ってとにかく撃つ(敵が死んでない時)(最初はこれ)
 	 2.. 敵が1~4体まで死んでる時
 	 3.. それ以上敵が死んでいる時，味方が残り1機になった時，リーダーが死んだとき
 	 */
-	int presentMode = 1;
+	public int presentMode = 1;
         
 	/**
 	 *  run: 色がロボットごとに異なるので実装
@@ -77,7 +77,7 @@ public class Group11Robot extends TeamRobot{
 	 * スキャンした敵が味方か相手かWallsかを判別する
 	 * @return 1 味方, 2 相手, 3 Walls
 	 */
-	int identifyEnemy(String name){
+	public int identifyEnemy(String name){
 
 		if(name.matches("group11.*")) return 1;
 		
