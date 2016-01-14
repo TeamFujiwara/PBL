@@ -29,8 +29,6 @@ import java.util.*;
  */
 public class Sub1 extends Group11Robot{
 
-	int whoIsMe = 2;
-
 	public void run() {
 
 		//色を設定
@@ -40,6 +38,8 @@ public class Sub1 extends Group11Robot{
 		setColors(Color.blue,Color.green,Color.magenta);
 		//awayのリーダー・サブ
 		//setColors(Color.white,Color.white,Color.white);
+
+		whoAmI = 2;
 
 		targets = new Hashtable();	//敵一覧
 		target = new Enemy();	//ターゲットにする敵
@@ -67,7 +67,7 @@ public class Sub1 extends Group11Robot{
 				//targetに近づきながら射撃
 				firePower=3;
 				setTurnRadarLeft(360);
-				antiGravMove(10000);
+				antiGravMove(1000);
 				doGunCircle(firePower);
 				execute();
 				if(hitPossibility)fire(firePower);
@@ -84,10 +84,4 @@ public class Sub1 extends Group11Robot{
 		System.out.println("Target:" + target.name);//デバッグ用．ターゲットを出力する
 		}
 	}
-
-	//名前が送信されてきた敵をターゲットに指定(Sub機のみ)
-	public void onMessageReceived(MessageEvent e){
-		if (targets.containsKey(e.getMessage()))target = (Enemy)targets.get(e.getMessage());
-	}
-
 }
