@@ -27,6 +27,7 @@ import java.util.*;
  * 	→ScannedRobotEventクラスに保存される
  */
 public class Sub2 extends Group11Robot{
+<<<<<<< HEAD
 
 	
 	public Sub2 () {
@@ -36,4 +37,64 @@ public class Sub2 extends Group11Robot{
 		super.radarColor = Color.magenta;
 	}
 
+=======
+	/**
+	 *  run: ロボットの全体動作をここに記入
+	 */
+	public void run() {
+
+		//色を設定
+		//homeのメイン
+		//setColors(Colored,Color.pink,Color.orange); // body,gun,radar
+		//homeのサブ
+		setColors(Color.blue,Color.green,Color.magenta);
+		//awayのリーダー・サブ
+		//setColors(Color.white,Color.white,Color.white);
+
+		whoAmI = 3;
+
+		targets = new Hashtable();	//敵一覧
+		target = new Enemy();	//ターゲットにする敵
+		target.name = "null";
+		target.distance = 100000;	//ターゲットとの距離をとりあえず初期化
+
+		double firePower = 0.1; 
+
+		//レーダーや砲台を機体と独立させる
+		setAdjustGunForRobotTurn(true);
+		setAdjustRadarForGunTurn(true);
+
+		//まずは全索敵
+		turnRadarRightRadians(2*PI);
+
+		// ロボットのメインループ
+		while(true) {
+
+			System.out.println("presentMode:" + presentMode);
+			System.out.println("Team:" + TeamCounter);
+			System.out.println("Walls:" + WallsCounter);
+			System.out.println("Enemy:" + EnemyCounter);
+
+			if(presentMode != 3){
+				//targetに近づきながら射撃
+				firePower=3;
+				setTurnRadarLeft(360);
+				antiGravMove(1000);
+				doGunCircle(firePower);
+				execute();
+				if(hitPossibility)fire(firePower);
+			}else{
+				//レーダー回転の予約
+				setTurnRadarLeftRadians(2*PI);
+				// 反重力運動
+				antiGravMove(-1000);
+				firePower = doFirePower();
+				doGunCircle(firePower);
+				execute();
+				if(hitPossibility)fire(firePower);
+			}
+		System.out.println("Target:" + target.name);//デバッグ用．ターゲットを出力する
+		}
+	}
+>>>>>>> temp1
 }

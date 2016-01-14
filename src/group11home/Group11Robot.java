@@ -184,9 +184,11 @@ public class Group11Robot extends TeamRobot{
 			if (en.live) {
 				/*targetで示してある敵に対しては引数で指定した力場を発生させる*/
 				if(en.name == target.name) p = new GravPoint(en.x,en.y, gravToTarget);
+				else if(en.isTeamMate) p = new GravPoint(en.x,en.y, -20000);
 				else p = new GravPoint(en.x,en.y, -1000);
 
-				force = p.power/Math.pow(getRange(getX(),getY(),p.x,p.y),2);
+				if(en.isTeamMate) force = p.power/Math.pow(getRange(getX(),getY(),p.x,p.y),3);
+				else force = p.power/Math.pow(getRange(getX(),getY(),p.x,p.y),2); 	
 				//Find the bearing from the point to us
 				//自分から見た敵の相対角度を計算
 				ang = normaliseBearing(Math.PI/2 - Math.atan2(getY() - p.y, getX() - p.x));
@@ -222,13 +224,15 @@ public class Group11Robot extends TeamRobot{
 		yforce -= 5000/Math.pow(getRange(getX(), getY(), getX(), 0), 3);
 	
 		//あまり壁と平行に動かないように，力を加える	
-		if(xforce > -50 && xforce < 50){
-			if(xforce > 0) xforce += 50;
-			else xforce -= 50;
-		}
-		if(yforce > -50 && yforce < 50){
-			if(yforce > 0) yforce += 50;
-			else yforce -= 50;
+		if(presentMode == 3){
+			if(xforce > -50 && xforce < 50){
+				if(xforce > 0) xforce += 50;
+				else xforce -= 50;
+			}
+			if(yforce > -50 && yforce < 50){
+				if(yforce > 0) yforce += 50;
+				else yforce -= 50;
+			}
 		}
 
 		//Move in the direction of our resolved force.
@@ -290,6 +294,10 @@ public class Group11Robot extends TeamRobot{
 		double yo = y2-y1;
 		double h = Math.sqrt( xo*xo + yo*yo );
 		return h;
+	}
+	@Override
+	public void onMessageReceived(MessageEvent e){
+		if(whoAmI != 1 && targets.containsKey(e.getMessage())) target = (Enemy)targets.get(e.getMessage());			
 	}
 	/**
 	 * onScannedRobot: 敵を察知したときの動作
@@ -354,11 +362,6 @@ public class Group11Robot extends TeamRobot{
 			}
 		}
 		}
-
-			
-			
-
-
 		//敵ロボットが居る角度の計算
 		double absbearing_rad = (getHeadingRadians()+e.getBearingRadians())%(2*PI);
 		//スキャンした敵ロボットの情報を保存
@@ -381,7 +384,10 @@ public class Group11Robot extends TeamRobot{
 
 	public void modeChange(){
 		if(EnemyCounter + WallsCounter >= 6) presentMode = 1;
-		else if(EnemyCounter + WallsCounter >= 3) presentMode = 2;
+		else if(EnemyCounter + WallsCounter >= 3){
+			presentMode = 2;
+			target.name = "null";
+		}
 		else presentMode = 3;
 		if(TeamCounter <=1) presentMode = 3;
 	}
