@@ -27,8 +27,6 @@ import java.util.*;
  * 	→ScannedRobotEventクラスに保存される
  */
 public class Sub2 extends Group11Robot{
-
-	int whoIsMe = 3;
 	/**
 	 *  run: ロボットの全体動作をここに記入
 	 */
@@ -41,6 +39,8 @@ public class Sub2 extends Group11Robot{
 		setColors(Color.blue,Color.green,Color.magenta);
 		//awayのリーダー・サブ
 		//setColors(Color.white,Color.white,Color.white);
+
+		whoAmI = 3;
 
 		targets = new Hashtable();	//敵一覧
 		target = new Enemy();	//ターゲットにする敵
@@ -68,7 +68,7 @@ public class Sub2 extends Group11Robot{
 				//targetに近づきながら射撃
 				firePower=3;
 				setTurnRadarLeft(360);
-				antiGravMove(10000);
+				antiGravMove(1000);
 				doGunCircle(firePower);
 				execute();
 				if(hitPossibility)fire(firePower);
@@ -84,10 +84,5 @@ public class Sub2 extends Group11Robot{
 			}
 		System.out.println("Target:" + target.name);//デバッグ用．ターゲットを出力する
 		}
-	}
-
-	//名前が送信されてきた敵をターゲットに指定(Sub機のみ)
-	public void onMessageReceived(MessageEvent e){
-		if (targets.containsKey(e.getMessage()))target = (Enemy)targets.get(e.getMessage());
 	}
 }
