@@ -27,8 +27,6 @@ import java.util.*;
  * 	→ScannedRobotEventクラスに保存される
  */
 public class Leader extends Group11Robot{
-
-	int whoIsMe = 1;
 	/**
 	 *  run: ロボットの全体動作をここに記入
 	 */
@@ -43,12 +41,15 @@ public class Leader extends Group11Robot{
 		//awayのリーダー・サブ
 		//setColors(Color.white,Color.white,Color.white);
 
+		whoAmI = 1;
+
 		targets = new Hashtable();	//敵一覧
 		target = new Enemy();	//ターゲットにする敵
 		target.name = "null";
 		target.distance = 100000;	//ターゲットとの距離をとりあえず初期化
 
 		double firePower = 0.1; 
+		
 
 		//レーダーや砲台を機体と独立させる
 		setAdjustGunForRobotTurn(true);
@@ -68,7 +69,7 @@ public class Leader extends Group11Robot{
 				//targetに近づきながら射撃
 				firePower=3;
 				setTurnRadarLeft(360);
-				antiGravMove(10000);
+				antiGravMove(1000);
 				doGunCircle(firePower);
 				execute();
 				if(hitPossibility)fire(firePower);
