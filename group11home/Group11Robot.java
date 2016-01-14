@@ -184,6 +184,8 @@ public class Group11Robot extends TeamRobot{
 			if (en.live) {
 				/*targetで示してある敵に対しては引数で指定した力場を発生させる*/
 				if(en.name == target.name) p = new GravPoint(en.x,en.y, gravToTarget);
++				else if(en.isTeamMate) p = new GravPoint(en.x,en.y, -20000);
+
 				else p = new GravPoint(en.x,en.y, -1000);
 
 				force = p.power/Math.pow(getRange(getX(),getY(),p.x,p.y),2);
@@ -222,13 +224,16 @@ public class Group11Robot extends TeamRobot{
 		yforce -= 5000/Math.pow(getRange(getX(), getY(), getX(), 0), 3);
 	
 		//あまり壁と平行に動かないように，力を加える	
-		if(xforce > -50 && xforce < 50){
-			if(xforce > 0) xforce += 50;
-			else xforce -= 50;
-		}
-		if(yforce > -50 && yforce < 50){
-			if(yforce > 0) yforce += 50;
-			else yforce -= 50;
+
+		if(presentMode == 3){
+ 			if(xforce > -50 && xforce < 50){
+ 				if(xforce > 0) xforce += 50;
+ 				else xforce -= 50;
+ 			}
+ 			if(yforce > -50 && yforce < 50){
+ 				if(yforce > 0) yforce += 50;
+ 				else yforce -= 50;
+ 			}
 		}
 
 		//Move in the direction of our resolved force.
@@ -451,12 +456,10 @@ public class Group11Robot extends TeamRobot{
 		}
 		return firePower;
 	}
-	//名前が送信されてきた敵をターゲットに指定(Sub機のみ)
-	public void onMessageReceived(MessageEvent e){
-		if (targets.containsKey(e.getMessage()))target = (Enemy)targets.get(e.getMessage());
-	}
-
-}
+@Override
+ 	public void onMessageReceived(MessageEvent e){
+ 		if(whoAmI != 1 && targets.containsKey(e.getMessage())) target = (Enemy)targets.get(e.getMessage());			
+ 	}}
 
 /**
  * 敵に関する情報をここに入れる

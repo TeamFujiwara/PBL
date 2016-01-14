@@ -52,12 +52,6 @@ public class Group11Robot extends TeamRobot{
 	public int presentMode = 1;
 
 	int whoAmI;	//Leaderなら1,sub1なら2,sub2なら3
-	
-	//名前が送信されてきた敵をターゲットに指定(Sub機のみ)
-	public void onMessageReceived(MessageEvent e){
-		if (targets.containsKey(e.getMessage()))target = (Enemy)targets.get(e.getMessage());
-	}
-
         
 	/**
 	 *  run: 色がロボットごとに異なるので実装
@@ -94,7 +88,7 @@ public class Group11Robot extends TeamRobot{
 				//targetに近づきながら射撃
 				firePower=3;
 				setTurnRadarLeft(360);
-				antiGravMove(10000);
+				antiGravMove(1000);
 				doGunCircle(firePower);
 				execute();
 				if(hitPossibility)fire(firePower);
@@ -190,6 +184,8 @@ public class Group11Robot extends TeamRobot{
 			if (en.live) {
 				/*targetで示してある敵に対しては引数で指定した力場を発生させる*/
 				if(en.name == target.name) p = new GravPoint(en.x,en.y, gravToTarget);
++				else if(en.isTeamMate) p = new GravPoint(en.x,en.y, -20000);
+
 				else p = new GravPoint(en.x,en.y, -1000);
 
 				force = p.power/Math.pow(getRange(getX(),getY(),p.x,p.y),2);
@@ -228,13 +224,16 @@ public class Group11Robot extends TeamRobot{
 		yforce -= 5000/Math.pow(getRange(getX(), getY(), getX(), 0), 3);
 	
 		//あまり壁と平行に動かないように，力を加える	
-		if(xforce > -50 && xforce < 50){
-			if(xforce > 0) xforce += 50;
-			else xforce -= 50;
-		}
-		if(yforce > -50 && yforce < 50){
-			if(yforce > 0) yforce += 50;
-			else yforce -= 50;
+
+		if(presentMode == 3){
+ 			if(xforce > -50 && xforce < 50){
+ 				if(xforce > 0) xforce += 50;
+ 				else xforce -= 50;
+ 			}
+ 			if(yforce > -50 && yforce < 50){
+ 				if(yforce > 0) yforce += 50;
+ 				else yforce -= 50;
+ 			}
 		}
 
 		//Move in the direction of our resolved force.
@@ -434,7 +433,8 @@ public class Group11Robot extends TeamRobot{
 			if(!en.isTeamMate)
 				break;
 			else{
-				
+				int bodyWidth = 20; //適当
+				// ここに的に当たりそうやったらっていう条件を入れる
 			}
 		}
 				
@@ -456,7 +456,10 @@ public class Group11Robot extends TeamRobot{
 		}
 		return firePower;
 	}
-}
+@Override
+ 	public void onMessageReceived(MessageEvent e){
+ 		if(whoAmI != 1 && targets.containsKey(e.getMessage())) target = (Enemy)targets.get(e.getMessage());			
+ 	}}
 
 /**
  * 敵に関する情報をここに入れる
@@ -512,6 +515,7 @@ class Enemy {
 		return this.bearing;
 	}
 
+
 }
 
 /**
@@ -527,4 +531,5 @@ class GravPoint {
 		power = pPower;
 	}
 }
+
 
