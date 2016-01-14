@@ -88,7 +88,7 @@ public class Group11Robot extends TeamRobot{
 				//targetに近づきながら射撃
 				firePower=3;
 				setTurnRadarLeft(360);
-				antiGravMove(10000);
+				antiGravMove(1000);
 				doGunCircle(firePower);
 				execute();
 				if(hitPossibility)fire(firePower);
