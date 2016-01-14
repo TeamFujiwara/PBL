@@ -1,3 +1,4 @@
+
 package group11home;
 import java.awt.Color;
 import java.awt.geom.*;
@@ -26,40 +27,50 @@ import java.util.*;
  * レーダーからわかる敵の情報はhttp://www.solar-system.tuis.ac.jp/Java/robocode_api/を参照
  * 	→ScannedRobotEventクラスに保存される
  */
-public class Group11Robot extends TeamRobot{
+public class Main extends TeamRobot
+{
+	public final String RobotName = "Leader";
 
-	public final double PI = Math.PI;	//円周率
+	// 敵ロボットの名前とか
+	public static final String Enemy1Name = "Leader";
+	public static final String Enemy2Name = "Sub1";
+	public static final String Enemy3Name = "Sub2";
 
-	public	Hashtable<String, Enemy> targets;	//Enemyのハッシュテーブル
-	public	Enemy target;	//ターゲットにする敵
-	public	boolean hitPossibility; //targetの推定移動位置がフィールドの中かどうかを示す変数
+	// それぞれ的とWallsの数
+	private int NumOfEnemiesAlive = 3;
+	private int NumOfWallsAlive = 3;
 
-	public	double midpointstrength = 0;
-	public	int midpointcount = 0;
-	public	int TeamCounter = 3;	//味方の生きている数
-	public	int EnemyCounter = 3;	//敵の生きている数
-	public	int WallsCounter = 3;	//Wallsの生きている数
-	public	boolean leaderAlive = true; //リーダーが生きているかどうか
-	public Color robotColor;
-	public Color gunColor;
-	public Color radarColor;
+	final double PI = Math.PI;	//円周率
+
+	Hashtable<String, Enemy> targets;	//Enemyのハッシュテーブル
+	Enemy target;	//ターゲットにする敵
+	int direction = 1;
+	boolean hitPossibility; //targetの推定移動位置がフィールドの中かどうかを示す変数
+
+	double midpointstrength = 0;
+	int midpointcount = 0;
+	int EnemyCounter = 3;	//敵の生きている数
+	int WallsCounter = 3;	//Wallsの生きている数
 
 	/* 現在のモード
-	 1...近くの敵を狙ってとにかく撃つ(敵が死んでない時)(最初はこれ)
-	 2.. 敵が1~4体まで死んでる時
-	 3.. それ以上敵が死んでいる時，味方が残り1機になった時，リーダーが死んだとき
+	 1...とにかく撃つ(敵が死んでない時)(最初はこれ)
+	 2.. 敵が1~3体まで死んでる時
+	 3.. それ以上敵が死んでいる時
 	 */
-	public int presentMode = 1;
-
-	int whoAmI;	//Leaderなら1,sub1なら2,sub2なら3
+	int presentMode = 1;
         
 	/**
-	 *  run: 色がロボットごとに異なるので実装
+	 *  run: ロボットの全体動作をここに記入(担当: 広田)
 	 */
-	public void run() {		//色を設定
-		setColors(robotColor,gunColor,radarColor); // body,gun,radar
+	public void run() {
+
+		// まずロボットの初期化
+		initializeRobot();
+
+		//色を設定
+		setColors(Color.red,Color.pink,Color.orange); // body,gun,radar
 		//homeのサブ
-		//setColors(Color.blue,Color.green,Color.magenta);
+		//setColors(Color.blue,Color.green,Color.magenda);
 		//awayのリーダー・サブ
 		//setColors(Color.white,Color.white,Color.white);
 
@@ -67,69 +78,79 @@ public class Group11Robot extends TeamRobot{
 		target = new Enemy();	//ターゲットにする敵
 		target.name = "null";
 		target.distance = 100000;	//ターゲットとの距離をとりあえず初期化
-
 		double firePower = 0.1; 
 
 		//レーダーや砲台を機体と独立させる
 		setAdjustGunForRobotTurn(true);
 		setAdjustRadarForGunTurn(true);
-
-		//まずは全索敵
 		turnRadarRightRadians(2*PI);
 
 		// ロボットのメインループ
 		while(true) {
-			System.out.println("presentMode:" + presentMode);
-			System.out.println("Team:" + TeamCounter);
-			System.out.println("Walls:" + WallsCounter);
-			System.out.println("Enemy:" + EnemyCounter);
+			modeChange();
+
+			System.out.println(presentMode);
 
 			if(presentMode != 3){
-				//targetに近づきながら射撃
+				//適当に打つ
 				firePower=3;
 				setTurnRadarLeft(360);
-				antiGravMove(1000);
+				antiGravMove(10000);
 				doGunCircle(firePower);
 				execute();
-				if(hitPossibility)fire(firePower);
-			}else{
+				System.out.println(target.name);//デバッグ用．ターゲットを出力する
+				fire(firePower);
+				
+/*			}else if(presentMode == 2){
+		setAdjustGunForRobotTurn(false);
+		setAdjustRadarForGunTurn(false);
+				//レーダーはぐるぐる回す、もし敵が見つかればその方向にいく
+				setTurnRadarLeft(360);
+				doGunCircle(3);
+				execute();
+				fire(3);
+	*/		}else{
 				//レーダー回転の予約
 				setTurnRadarLeftRadians(2*PI);
 				// 反重力運動
 				antiGravMove(-1000);
 				firePower = doFirePower();
 				doGunCircle(firePower);
+				System.out.println(target.name);
 				execute();
 				if(hitPossibility)fire(firePower);
 			}
-		System.out.println("Target:" + target.name);//デバッグ用．ターゲットを出力する
 		}
+	}
+
+	/**
+	 * ロボットの情報を初期化する(担当: 松田)
+	 */
+	private void initializeRobot() {
+		// 例... 敵の数とWallsの数をそれぞれクラスの変数に入れる
+		//NumOfEnemiesAlive = countNumbOfEnemiesAilve();
+		//NumOfWallsAlive = countNumOfWallsAlive();
 	}
 
 	@Override
 	public void onRobotDeath(RobotDeathEvent event){
 		int enemyID = identifyEnemy(event.getName());
-		if (enemyID == 1)
-			--TeamCounter;		
-		else if(enemyID == 2)
+		if(enemyID == 2)
 			--EnemyCounter;
 		else if(enemyID == 3)
 			--WallsCounter;
-		if(event.getName() == target.name){
-			target.name = "null";
-			targets.get(event.getName()).live = false;
-		}
-		modeChange();
-		System.out.println("enemyID:" + enemyID);
 
+		if(event.getName() == target.name)
+			target.name = "null";
+		modeChange();
 	}
 			
 	
 	/**
-	 * スキャンした敵が味方か相手かWallsかを判別する
+	 * スキャンした敵が味方か相手かWallsかを判別する(担当 ,山下)
 	 * @return 1 味方, 2 相手, 3 Walls
 	 */
-	public int identifyEnemy(String name){
+	private int identifyEnemy(String name){
 
 		if(name.matches("group11.*")) return 1;
 		
@@ -139,6 +160,38 @@ public class Group11Robot extends TeamRobot{
 
 	}
 
+
+	/**
+	 * ロボットと自分との距離を測る(担当: 上田、山下)
+	 * @return 距離
+	 */
+	private int measureDistanceOfEnemy(ScannedRobotEvent e){
+		return (int)e.getDistance();
+	}
+
+	/*
+
+	 * 敵を見つけると敵の動きに合わせてレーダーを合わせる
+
+	 */
+
+	// 12/11 modified
+	// if文で狙ってる敵の時のみこれを動作させる
+	private void chaseEnemyWithRadar(ScannedRobotEvent e){
+		double bearing = e.getBearing();
+			clearAllEvents();
+		
+
+		turnLeft(bearing);
+		// その方向に進む
+		ahead(100);
+		
+		scan();
+
+		// ここに松田が作った打つメソッドを作成
+		
+	}
+	
 	public double headingToBearing(double heading){
 		if(heading <= 180)
 			return heading;
@@ -182,7 +235,7 @@ public class Group11Robot extends TeamRobot{
 		while (e.hasMoreElements()) {
 			en = (Enemy)e.nextElement();
 			if (en.live) {
-				/*targetで示してある敵に対しては引数で指定した力場を発生させる*/
+				/*改造点:targetで示してある敵に対しては引力を発生させる*/
 				if(en.name == target.name) p = new GravPoint(en.x,en.y, gravToTarget);
 				else p = new GravPoint(en.x,en.y, -1000);
 
@@ -221,7 +274,7 @@ public class Group11Robot extends TeamRobot{
 		yforce += 5000/Math.pow(getRange(getX(), getY(), getX(), getBattleFieldHeight()), 3);
 		yforce -= 5000/Math.pow(getRange(getX(), getY(), getX(), 0), 3);
 	
-		//あまり壁と平行に動かないように，力を加える	
+		//壁と平行に動かないように	
 		if(xforce > -50 && xforce < 50){
 			if(xforce > 0) xforce += 50;
 			else xforce -= 50;
@@ -266,26 +319,43 @@ public class Group11Robot extends TeamRobot{
 		double xo = x2-x1;
 		double yo = y2-y1;
 		double h = getRange( x1,y1, x2,y2 );
-		if( xo > 0 && yo > 0 )	return Math.asin( xo / h );
-		if( xo > 0 && yo < 0 )	return Math.PI - Math.asin( xo / h );
-		if( xo < 0 && yo < 0 )	return Math.PI + Math.asin( -xo / h );
-		if( xo < 0 && yo > 0 )	return 2.0*Math.PI - Math.asin( -xo / h );
+		if( xo > 0 && yo > 0 )
+		{
+			return Math.asin( xo / h );
+		}
+		if( xo > 0 && yo < 0 )
+		{
+			return Math.PI - Math.asin( xo / h );
+		}
+		if( xo < 0 && yo < 0 )
+		{
+			return Math.PI + Math.asin( -xo / h );
+		}
+		if( xo < 0 && yo > 0 )
+		{
+			return 2.0*Math.PI - Math.asin( -xo / h );
+		}
 		return 0;
 	}
 	double normaliseBearing(double ang) {
-		if (ang > PI)	ang -= 2*PI;
-		if (ang < -PI)	ang += 2*PI;
+		if (ang > PI)
+			ang -= 2*PI;
+		if (ang < -PI)
+			ang += 2*PI;
 		return ang;
 	}
 
 	//if a heading is not within the 0 to 2pi range, alters it to provide the shortest angle
 	double normaliseHeading(double ang) {
-		if (ang > 2*PI)	ang -= 2*PI;
-		if (ang < 0)	ang += 2*PI;
+		if (ang > 2*PI)
+			ang -= 2*PI;
+		if (ang < 0)
+			ang += 2*PI;
 		return ang;
 	}
 
-	public double getRange( double x1,double y1, double x2,double y2 ){
+	public double getRange( double x1,double y1, double x2,double y2 )
+	{
 		double xo = x2-x1;
 		double yo = y2-y1;
 		double h = Math.sqrt( xo*xo + yo*yo );
@@ -299,64 +369,39 @@ public class Group11Robot extends TeamRobot{
 
 		Enemy en;
 
+		//setTurnRadarLeftRadians(0);
+		
+		//chaseEnemyWithRadar(e);
+
 		if (targets.containsKey(e.getName())) {
 			en = (Enemy)targets.get(e.getName());
 			// 敵かどうかチェック
 			en.isEnemy = (identifyEnemy(e.getName()) == 2) ? true : false;
 		} else {
 			en = new Enemy();
-			if(identifyEnemy(e.getName()) == 1) en.isTeamMate = true;
 			targets.put(e.getName(),en);
 		}
 
-		if(whoAmI == 1){
 		//標的を決定．
 		if(identifyEnemy(e.getName()) !=1){
-			if(en.isEnemy){
-				if(target.name == "null"){
-					target = en;
-					try{
-						broadcastMessage(target.name);
-						System.out.println("targetchange:" + target.name);
-					}catch (Exception error){
-						System.out.println("メッセージ送信中にエラー");
-					}
-				}else if (targets.get(target.name).live == false){
-					target = en;
-					try{
-						broadcastMessage(target.name);
-					}catch (Exception error){
-						System.out.println("メッセージ送信中にエラー");
-					}
+			if(target.name == "null"){
+				target = en;
+				// 標的を送信(リーダーのみ、リーダーが死んだ後はSub1
+				try{
+					broadcastMessage(target.name);
+				}catch (Exception error){
+					System.out.println("メッセージ送信中にエラー");
 				}
-			}else if(EnemyCounter <= 0){
-				if(target.name == "null"){
-					target = en;
-				}else if (targets.get(target.name).live == false){
-					target = en;
+			}else if (targets.get(target.name).live == false ){
+				target = en;
+				// 標的を送信(リーダーのみ、リーダーが死んだ後はSub1
+				try{
+					broadcastMessage(target.name);
+				}catch (Exception error){
+					System.out.println("メッセージ送信中にエラー");
 				}
 			}
 		}
-		}else{
-				if(identifyEnemy(e.getName()) !=1){
-			if(en.isEnemy){
-				if(target.name == "null"){
-					target = en;
-				}else if (targets.get(target.name).live == false){
-					target = en;
-				}
-			}else if(EnemyCounter <= 0){
-				if(target.name == "null"){
-					target = en;
-				}else if (targets.get(target.name).live == false){
-					target = en;
-				}
-			}
-		}
-		}
-
-			
-			
 
 
 		//敵ロボットが居る角度の計算
@@ -381,9 +426,9 @@ public class Group11Robot extends TeamRobot{
 
 	public void modeChange(){
 		if(EnemyCounter + WallsCounter >= 6) presentMode = 1;
-		else if(EnemyCounter + WallsCounter >= 3) presentMode = 2;
+		else if(EnemyCounter + WallsCounter >= 4) presentMode = 2;
 		else presentMode = 3;
-		if(TeamCounter <=1) presentMode = 3;
+
 	}
 	
 	//反復での時間計算によって弾丸到達時刻推定を改善する機能を搭載した射撃メソッド 参考:https://www.ibm.com/developerworks/jp/java/library/j-circular/
@@ -418,32 +463,12 @@ public class Group11Robot extends TeamRobot{
 	    setTurnGunLeftRadians(normaliseBearing(gunOffset));
 		judgeGunFire(p);
 	}
-
-	// ここに味方を打ちそうなら打たないという条件も追加する
 	void judgeGunFire(Point2D.Double p){
-
-		Enumeration ens = targets.elements();
-		while(ens.hasMoreElements()){
-			Enemy en = (Enemy)ens.nextElement();
-			if(!en.isTeamMate)
-				break;
-			else{
-				int bodyWidth = 20; //適当
-				// ここに的に当たりそうやったらっていう条件を入れる
-			}
-		}
-				
-
-		
-		if(p.x < 0 || p.y < 0 || p.x > getBattleFieldWidth() || p.y > getBattleFieldHeight()){
+		if(p.x < 0 || p.y < 0 || p.x > getBattleFieldWidth() || p.y > getBattleFieldHeight())
 			hitPossibility = false;
-			return;
-		}
-
-		hitPossibility = true;
-		return;
+		else hitPossibility = true;
 	}
-	double doFirePower(){
+	double doFirePower() {
 		double firePower;
 		firePower = 400/target.distance;//selects a bullet power based on our distance away from the target
 		if (firePower > 3) {
@@ -451,13 +476,7 @@ public class Group11Robot extends TeamRobot{
 		}
 		return firePower;
 	}
-	//名前が送信されてきた敵をターゲットに指定(Sub機のみ)
-	public void onMessageReceived(MessageEvent e){
-		if (targets.containsKey(e.getMessage()))target = (Enemy)targets.get(e.getMessage());
-	}
-
 }
-
 /**
  * 敵に関する情報をここに入れる
  *
@@ -466,7 +485,7 @@ class Enemy {
 	/*
 	 * ok, we should really be using accessors and mutators here,
 	 * (i.e getName() and setName()) but life's too short.
-	 * ↑日本語訳()
+	 * ↑日本語訳(広田)
 	 * getNameとかsetNameみたいなメソッドを作ったほうがいいんかもしれんけど、時間もったいないしやってない
 	 */
 	String name;
@@ -474,7 +493,6 @@ class Enemy {
 	public long ctime; 		//game time that the scan was produced
 	public boolean live; 	//is the enemy alive?
 	public boolean isEnemy = true;	//wallsならfalseにする
-	public boolean isTeamMate = false; //チームメイトならtrueにする
 	public Point2D.Double guessPositionLinear(long when) {
 		double diff = when - ctime;
 		double newY = y + Math.cos(heading) * speed * diff;
@@ -512,13 +530,12 @@ class Enemy {
 		return this.bearing;
 	}
 
-
 }
 
 /**
  * 重力点(この点に引きこまれて行ったり離れていったりという動作に用いる)
- *	(座標はint型で表すからxとかyもdoubleじゃなくてintのほうがよくない？) 
- *      (API見たけど座標や距離は全てdouble型で返ってくるので）
+ *	(座標はint型で表すからxとかyもdoubleじゃなくてintのほうがよくない？) 広田
+ *      (API見たけど座標や距離は全てdouble型で返ってくるので）藤原
  */
 class GravPoint {
 	public double x,y,power;

@@ -1,4 +1,4 @@
-package group11home;
+package group11away;
 import java.awt.Color;
 import java.awt.geom.*;
 import robocode.*;
@@ -52,6 +52,12 @@ public class Group11Robot extends TeamRobot{
 	public int presentMode = 1;
 
 	int whoAmI;	//Leaderなら1,sub1なら2,sub2なら3
+	
+	//名前が送信されてきた敵をターゲットに指定(Sub機のみ)
+	public void onMessageReceived(MessageEvent e){
+		if (targets.containsKey(e.getMessage()))target = (Enemy)targets.get(e.getMessage());
+	}
+
         
 	/**
 	 *  run: 色がロボットごとに異なるので実装
@@ -88,7 +94,7 @@ public class Group11Robot extends TeamRobot{
 				//targetに近づきながら射撃
 				firePower=3;
 				setTurnRadarLeft(360);
-				antiGravMove(1000);
+				antiGravMove(10000);
 				doGunCircle(firePower);
 				execute();
 				if(hitPossibility)fire(firePower);
@@ -428,8 +434,7 @@ public class Group11Robot extends TeamRobot{
 			if(!en.isTeamMate)
 				break;
 			else{
-				int bodyWidth = 20; //適当
-				// ここに的に当たりそうやったらっていう条件を入れる
+				
 			}
 		}
 				
@@ -451,11 +456,6 @@ public class Group11Robot extends TeamRobot{
 		}
 		return firePower;
 	}
-	//名前が送信されてきた敵をターゲットに指定(Sub機のみ)
-	public void onMessageReceived(MessageEvent e){
-		if (targets.containsKey(e.getMessage()))target = (Enemy)targets.get(e.getMessage());
-	}
-
 }
 
 /**
@@ -511,7 +511,6 @@ class Enemy {
 	public double getBearing() {
 		return this.bearing;
 	}
-
 
 }
 
