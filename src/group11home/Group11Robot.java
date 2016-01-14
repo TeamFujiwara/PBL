@@ -40,6 +40,9 @@ public class Group11Robot extends TeamRobot{
 	public	int EnemyCounter = 3;	//敵の生きている数
 	public	int WallsCounter = 3;	//Wallsの生きている数
 	public	boolean leaderAlive = true; //リーダーが生きているかどうか
+	public Color robotColor;
+	public Color gunColor;
+	public Color radarColor;
 
 	/* 現在のモード
 	 1...近くの敵を狙ってとにかく撃つ(敵が死んでない時)(最初はこれ)
@@ -53,7 +56,54 @@ public class Group11Robot extends TeamRobot{
 	/**
 	 *  run: 色がロボットごとに異なるので実装
 	 */
-	public void run() {
+	public void run() {		//色を設定
+		setColors(robotColor,gunColor,radarColor); // body,gun,radar
+		//homeのサブ
+		//setColors(Color.blue,Color.green,Color.magenta);
+		//awayのリーダー・サブ
+		//setColors(Color.white,Color.white,Color.white);
+
+		targets = new Hashtable();	//敵一覧
+		target = new Enemy();	//ターゲットにする敵
+		target.name = "null";
+		target.distance = 100000;	//ターゲットとの距離をとりあえず初期化
+
+		double firePower = 0.1; 
+
+		//レーダーや砲台を機体と独立させる
+		setAdjustGunForRobotTurn(true);
+		setAdjustRadarForGunTurn(true);
+
+		//まずは全索敵
+		turnRadarRightRadians(2*PI);
+
+		// ロボットのメインループ
+		while(true) {
+			System.out.println("presentMode:" + presentMode);
+			System.out.println("Team:" + TeamCounter);
+			System.out.println("Walls:" + WallsCounter);
+			System.out.println("Enemy:" + EnemyCounter);
+
+			if(presentMode != 3){
+				//targetに近づきながら射撃
+				firePower=3;
+				setTurnRadarLeft(360);
+				antiGravMove(10000);
+				doGunCircle(firePower);
+				execute();
+				if(hitPossibility)fire(firePower);
+			}else{
+				//レーダー回転の予約
+				setTurnRadarLeftRadians(2*PI);
+				// 反重力運動
+				antiGravMove(-1000);
+				firePower = doFirePower();
+				doGunCircle(firePower);
+				execute();
+				if(hitPossibility)fire(firePower);
+			}
+		System.out.println("Target:" + target.name);//デバッグ用．ターゲットを出力する
+		}
 	}
 
 	@Override
@@ -455,6 +505,11 @@ class Enemy {
 	public double getBearing() {
 		return this.bearing;
 	}
+	//名前が送信されてきた敵をターゲットに指定(Sub機のみ)
+	public void onMessageReceived(MessageEvent e){
+		if (targets.containsKey(e.getMessage()))target = (Enemy)targets.get(e.getMessage());
+	}
+
 
 }
 
