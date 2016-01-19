@@ -115,10 +115,10 @@ public class Group11Robot extends TeamRobot{
 			--EnemyCounter;
 		else if(enemyID == 3)
 			--WallsCounter;
-		if(event.getName() == target.name){
-			target.name = "null";
+		if (targets.containsKey(event.getName()))
 			targets.get(event.getName()).live = false;
-		}
+		if(event.getName() == target.name)
+			target.name = "null";
 		modeChange();
 		System.out.println("enemyID:" + enemyID);
 
@@ -184,7 +184,7 @@ public class Group11Robot extends TeamRobot{
 			if (en.live) {
 				/*targetで示してある敵に対しては引数で指定した力場を発生させる*/
 				if(en.name == target.name) p = new GravPoint(en.x,en.y, gravToTarget);
-+				else if(en.isTeamMate) p = new GravPoint(en.x,en.y, -20000);
+				else if(en.isTeamMate) p = new GravPoint(en.x,en.y, -20000);
 
 				else p = new GravPoint(en.x,en.y, -1000);
 
@@ -386,7 +386,10 @@ public class Group11Robot extends TeamRobot{
 
 	public void modeChange(){
 		if(EnemyCounter + WallsCounter >= 6) presentMode = 1;
-		else if(EnemyCounter + WallsCounter >= 3) presentMode = 2;
+		else if(EnemyCounter + WallsCounter >= 3){
+			presentMode = 2;
+			if(whoAmI == 1) target.name = "null";
+		}
 		else presentMode = 3;
 		if(TeamCounter <=1) presentMode = 3;
 	}
